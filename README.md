@@ -6,6 +6,8 @@ For detailed API documentation, refer to the Octopart API documentation:
 
  * http://octopart.com/api/documentation
 
+Fork of https://github.com/jbaker0428/Python-Octopart-API
+
 ## Note
 
 ### method/argument syntax
@@ -26,6 +28,14 @@ For example:
     >>> o.parts_get(1881614252472, optimize_hide_datasheets=True)
 
 The library will perform the translation internally.
+
+## Todo
+
+ [x] switch to python 3
+ [x] create buildout build
+ [x] use function annotations
+ [ ] switch to v3 API
+ [ ] improve and fix tests
 
 ## License
 

@@ -122,28 +122,28 @@ class DataEquivalenceTest(unittest.TestCase):
             assert isinstance(attrib, OctopartPartAttribute)
             assert True in [attrib.equals_json(a) for a in json_obj]
 
-    #def test_bom_match(self):
-    #    bom_match_ref = requests.get('http://octopart.com/api/v2/bom/match',
-    #                                 params={'lines': json.dumps([
-    #                                     {'mpn': 'SN74LS240N',  'manufacturer': 'Texas Instruments'},
-    #                                     {'mpn': 'RB-220-07A R','manufacturer': 'C&K Components'}
-    #                                 ]), 'apikey': '92bdca1b'}
-    #                                 ).json()
-    #    json_obj, results = self.api.bom_match(lines=[
-    #        {'mpn':'SN74LS240N', 'manufacturer':'Texas Instruments'},
-    #        {'mpn':'RB-220-07A R','manufacturer':'C&K Components'}
-    #    ])
-    #    assert json_obj is not None
+    def test_bom_match(self):
+        bom_match_ref = requests.get('http://octopart.com/api/v2/bom/match',
+                                     params={'lines': json.dumps([
+                                         {'mpn': 'SN74LS240N',  'manufacturer': 'Texas Instruments'},
+                                         {'mpn': 'RB-220-07A R','manufacturer': 'C&K Components'}
+                                     ]), 'apikey': '92bdca1b'}
+                                     ).json()
+        json_obj, results = self.api.bom_match(lines=[
+            {'mpn':'SN74LS240N', 'manufacturer':'Texas Instruments'},
+            {'mpn':'RB-220-07A R','manufacturer':'C&K Components'}
+        ])
+        assert json_obj is not None
     #    assert_dict_equal(json_obj, bom_match_ref)
 
-    #    for result in results:
-    #        if result.get('hits') is not None:    # Not in API docs, but exists
-    #            assert result['hits'] == len(result['items'])
-    #        assert result['status'] == json_obj['results'][results.index(result)]['status']
-    #        assert result['reference'] == json_obj['results'][results.index(result)]['reference']
-    #        for part in result['items']:
-    #            assert isinstance(part, OctopartPart)
-    #            assert part.equals_json(json_obj['results'][results.index(result)]['items'][result['items'].index(part)]) # XXX
+        for result in results:
+            if result.get('hits') is not None:    # Not in API docs, but exists
+                assert result['hits'] == len(result['items'])
+            assert result['status'] == json_obj['results'][results.index(result)]['status']
+            assert result['reference'] == json_obj['results'][results.index(result)]['reference']
+            for part in result['items']:
+                assert isinstance(part, OctopartPart)
+                #assert part.equals_json(json_obj['results'][results.index(result)]['items'][result['items'].index(part)]) # XXX
 
     def test_brand(self):
         brand = OctopartBrand(459, "Digi-Key", "http://www.digikey.com")
