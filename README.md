@@ -37,6 +37,11 @@ The library will perform the translation internally.
  * [ ] switch to v3 API
  * [ ] improve and fix tests
 
+## Authors
+
+ * Forked by Bernard `Guyzmo` Pratz <octopart at m0g.net>
+ * Originally authored by Joe Baker <jbaker at alum.wpi.edu>
+
 ## License
 
     Licensed under the Apache License, Version 2.0 (the "License");
