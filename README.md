@@ -6,7 +6,41 @@ For detailed API documentation, refer to the Octopart API documentation:
 
  * https://octopart.com/api/docs/v2/rest-api
 
-Fork of https://github.com/jbaker0428/Python-Octopart-API
+This is a fork of https://github.com/jbaker0428/Python-Octopart-API
+
+This fork is *incompatible* with Python 2 distributions!
+
+## Install
+
+just do:
+
+    python3 setup.py install
+
+and it'll be available from your python REPL:
+
+    % python3
+    >>> from pyoctopart.octopart import Octopart
+    >>> o = Octopart.api(apikey="yourapikey")
+
+when the lib will be considered stable enough, I'll upload it to [pipy](https://pypi.python.org/pypi?:action=pkg_edit&name=pyoctopart):
+
+    % pip install pyoctopart
+
+## Develop
+
+if you just want to develop, you can do:
+
+    % buildout
+
+which will download dependencies and deploy a python command in `bin/`:
+
+    % bin/python3
+    >>> from pyoctopart.octopart import Octopart
+    >>> o = Octopart.api(apikey="yourapikey")
+    
+You can run regression tests using:
+
+    % bin/test
 
 ## Note
 
