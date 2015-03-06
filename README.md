@@ -1,16 +1,14 @@
-## pyoctopart
+# pyoctopart
 
 A simple Python client frontend to the Octopart public REST API.
 
-For detailed API documentation, refer to the Octopart API documentation:
+For detailed API documentation, refer to the [Octopart APIv2 documentation](https://octopart.com/api/docs/v2/rest-api)
 
- * https://octopart.com/api/docs/v2/rest-api
+This is a fork of [Joe Baker](https://github.com/jbaker0428/Python-Octopart-API)'s work, and this fork is *incompatible* with Python 2 distributions!
 
-This is a fork of https://github.com/jbaker0428/Python-Octopart-API
+## Usage
 
-This fork is *incompatible* with Python 2 distributions!
-
-## Install
+### Install
 
 just do:
 
@@ -26,7 +24,7 @@ when the lib will be considered stable enough, I'll upload it to [pipy](https://
 
     % pip install pyoctopart
 
-## Develop
+### Develop
 
 if you just want to develop, you can do:
 
@@ -42,7 +40,7 @@ You can run regression tests using:
 
     % bin/test
 
-## Note
+## Notes
 
 ### method/argument syntax
 
@@ -63,7 +61,7 @@ For example:
 
 The library will perform the translation internally.
 
-## Todo
+### Roadmap
 
  * [x] switch to python 3
  * [x] create buildout build
