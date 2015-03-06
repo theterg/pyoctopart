@@ -31,11 +31,11 @@ The library will perform the translation internally.
 
 ## Todo
 
- [x] switch to python 3
- [x] create buildout build
- [x] use function annotations
- [ ] switch to v3 API
- [ ] improve and fix tests
+ * [x] switch to python 3
+ * [x] create buildout build
+ * [x] use function annotations
+ * [ ] switch to v3 API
+ * [ ] improve and fix tests
 
 ## License
 
