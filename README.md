@@ -4,7 +4,7 @@ A simple Python client frontend to the Octopart public REST API.
 
 For detailed API documentation, refer to the Octopart API documentation:
 
- * http://octopart.com/api/documentation
+ * https://octopart.com/api/docs/v2/rest-api
 
 Fork of https://github.com/jbaker0428/Python-Octopart-API
 
@@ -55,3 +55,5 @@ The library will perform the translation internally.
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
     See the License for the specific language governing permissions and
     limitations under the License.
+
+

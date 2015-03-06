@@ -248,10 +248,10 @@ class OctopartPart(object):
         """Checks the object for data equivalence to a JSON Part resource."""
 
         def compare_offers(class_offer, json_offer):
-            """Compares two offers.
-
-            @param class_offer: An offer from an OctopartPart instance.
-            @param json_offer: An offer from a JSON Part resource.
+            """
+            Compares two offers.
+            class_offer: An offer from an OctopartPart instance.
+            json_offer: An offer from a JSON Part resource.
             """
 
             class_attribs = (class_offer['sku'], class_offer['avail'], class_offer['prices'], \
@@ -267,10 +267,10 @@ class OctopartPart(object):
             return True
 
         def compare_specs(class_spec, json_spec):
-            """Compares two specs.
-
-            @param class_spec: A spec from an OctopartPart instance.
-            @param json_spec: A spec from a JSON Part resource.
+            """
+            Compares two specs.
+            class_spec: A spec from an OctopartPart instance.
+            json_spec: A spec from a JSON Part resource.
             """
 
             if not class_spec['attribute'].equals_json(json_spec['attribute']):
@@ -451,7 +451,7 @@ class Octopart(object):
 
     """A simple client frontend to tho Octopart public REST API.
 
-    For detailed API documentation, refer to http://octopart.com/api/documentation.
+    For detailed API documentation, refer to https://octopart.com/api/docs/v2/rest-api.
     """
 
     api_url = 'http://octopart.com/api/v2/'
@@ -499,7 +499,7 @@ class Octopart(object):
     def parts_match(self, manufacturer_name: str, mpn: str):
         """Match (manufacturer name, mpn) to part uid.
 
-        @return: a list of (part uid, manufacturer displayname, mpn) tuples.
+        returns a list of (part uid, manufacturer displayname, mpn) tuples.
         If no JSON object is found without an Exception being raised, returns None.
         """
 
@@ -525,7 +525,7 @@ class Octopart(object):
     def partattributes_get(self, fieldname: str):
         """Fetch a PartAttribute object by its fieldname.
 
-        @return: A pair containing:
+        returns A pair containing:
             -The raw JSON result dictionary.
             -An OctopartPartAttribute object.
         If no JSON object is found without an Exception being raised, returns None.
@@ -552,7 +552,7 @@ class Octopart(object):
     def partattributes_get_multi(self, fieldnames: list):
         """Fetch multiple PartAttribute objects by their fieldnames.
 
-        @return: A pair containing:
+        returns A pair containing:
             -The raw JSON result dictionary.
             -A list of OctopartPartAttribute objects.
         If no JSON object is found without an Exception being raised, returns None.
@@ -590,7 +590,7 @@ class Octopart(object):
                   optimize_hide_specs : bool = False):
         """Match a list of part numbers to Octopart part objects.
 
-        @return: A pair containing:
+        returns A pair containing:
             -The raw JSON result dictionary.
             -A list of dicts containing:
                 -A list of OctopartParts.
