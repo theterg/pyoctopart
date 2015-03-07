@@ -23,7 +23,7 @@ long_description = """
 """.format(**read('README.md'))
 
 setup(name='pyoctopart',
-      version='1.0',
+      version='0.6.1',
       description="Python library to connect to Octopart",
       long_description=long_description,
       classifiers=[

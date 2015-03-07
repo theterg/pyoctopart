@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 """
-A simple Python client library to the Octopart public REST API.
+pyoctopart: A simple Python client library to the Octopart public REST API.
 
-@author: Bernard `Guyzmo` Pratz <octopart@m0g.net>
-@author: Joe Baker <jbaker@alum.wpi.edu>
+author: Bernard `Guyzmo` Pratz <octopart@m0g.net>
+author: Joe Baker <jbaker@alum.wpi.edu>
 
-@license:
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -19,29 +18,58 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-__version__ = "0.6.0"
-__author__ = "Joe Baker <jbaker@alum.wpi.edu>"
-__contributors__ = ["Bernard Pratz <pyoctopart@m0g.net>"]
-
 import copy
-import urllib.parse
-import requests
-from requests import HTTPError
 import json
-from types import *
+import requests
 import datetime
+import pkg_resources
 
-from .exceptions import OctopartArgumentMissingError, \
-                        OctopartArgumentInvalidError, \
-                        OctopartTypeArgumentError, \
-                        OctopartRangeArgumentError, \
-                        OctopartStringLengthError, \
-                        OctopartLimitExceededError, \
-                        Octopart404Error, \
-                        Octopart503Error, \
-                        OctopartNonJsonArgumentError, \
-                        OctopartInvalidSortError, \
-                        OctopartTooLongListError
+from pprint import pprint
+
+from .exceptions import OctopartArgumentMissingError
+from .exceptions import OctopartArgumentInvalidError
+from .exceptions import OctopartTypeArgumentError
+from .exceptions import OctopartRangeArgumentError
+from .exceptions import OctopartStringLengthError
+from .exceptions import OctopartLimitExceededError
+from .exceptions import Octopart404Error
+from .exceptions import Octopart503Error
+from .exceptions import OctopartNonJsonArgumentError
+from .exceptions import OctopartInvalidSortError
+from .exceptions import OctopartTooLongListError
+from .exceptions import OctopartInvalidApiKeyError
+
+__version__ = pkg_resources.require('pyoctopart')[0].version
+__author__ = 'Joe Baker <jbaker at alum.wpi.edu>'
+__contributors__ = ['Bernard `Guyzmo` Pratz <pyoctopart at m0g dot net>']
+
+''' Utility features '''
+
+class curry:
+    def __init__(self, fun, *args, **kwargs):
+        self.fun = fun
+        self.pending = args[:]
+        self.kwargs = kwargs.copy()
+
+    def __call__(self, *args, **kwargs):
+        if kwargs and self.kwargs:
+            kw = self.kwargs.copy()
+            kw.update(kwargs)
+        else:
+            kw = kwargs or self.kwargs
+
+        return self.fun(*(self.pending + args), **kw)
+
+
+def select(param, d):
+    return {k: v for k, v in d.items() if param in k}
+
+select_incls=curry(select, 'include_')
+select_shows=curry(select, 'show_')
+select_hides=curry(select, 'hide_')
+
+
+''' Octopart Data maps '''
 
 class OctopartBrand(object):
     def __init__(self, id, dispname, homepage):
@@ -178,7 +206,112 @@ class OctopartCategory(object):
     def __str__(self):
         return ''.join(('Category ', str(self.id), ': ', self.nodename))
 
+
+class OctopartManufacturer(object):
+    pass
+
 class OctopartPart(object):
+    @classmethod
+    import pdb; pdb.set_trace()  # XXX BREAKPOINT
+    def includes(include_short_description: bool = False,
+                 include_datasheets: bool = False,
+                 include_compliance_documents: bool = False,
+                 include_descriptions: bool = False,
+                 include_imagesets: bool = False,
+                 include_specs: bool = False,
+                 include_category_uids: bool = False,
+                 include_external_links: bool = False,
+                 include_reference_designs: bool = False,
+                 include_cad_models: bool = False):
+        args = {'include[]':[]}
+        if include_short_description is True:     args['include[]']+=['short_description']
+        if include_datasheets is True:            args['include[]']+=['datasheets']
+        if include_compliance_documents is True:  args['include[]']+=['compliante_documents']
+        if include_descriptions is True:          args['include[]']+=['descriptions']
+        if include_imagesets is True:             args['include[]']+=['imagesets']
+        if include_specs is True:                 args['include[]']+=['specs']
+        if include_category_uids is True:         args['include[]']+=['category_uids']
+        if include_external_links is True:        args['include[]']+=['external_links']
+        if include_reference_designs is True:     args['include[]']+=['reference_designs']
+        if include_cad_models is True:            args['include[]']+=['cad_models']
+        return args
+
+    @classmethod
+    def shows(show_uid: bool = False,
+              show_mpn: bool = False,
+              show_manufacturer: bool = False,
+              show_brand: bool = False,
+              show_octopart_url: bool = False,
+              show_external_links: bool = False,
+              show_offers: bool = False,
+              show_broker_listings: bool = False,
+              show_short_description: bool = False,
+              show_descriptions: bool = False,
+              show_imagesets: bool = False,
+              show_datasheets: bool = False,
+              show_compliance_documents: bool = False,
+              show_reference_designs: bool = False,
+              show_cad_models: bool = False,
+              show_specs: bool = False,
+              show_category_uids:bool = False):
+        args = {'show[]':[]}
+        if show_uid is True:                   args['show[]']+=['uid']
+        if show_mpn is True:                   args['show[]']+=['mpn']
+        if show_manufacturer is True:          args['show[]']+=['manufacturer']
+        if show_brand is True:                 args['show[]']+=['brand']
+        if show_octopart_url is True:          args['show[]']+=['octopart_url']
+        if show_offers is True:                args['show[]']+=['offers']
+        if show_broker_listings is True:       args['show[]']+=['broker_listings']
+        if show_short_description is True:     args['show[]']+=['short_description']
+        if show_datasheets is True:            args['show[]']+=['datasheets']
+        if show_compliance_documents is True:  args['show[]']+=['compliante_documents']
+        if show_descriptions is True:          args['show[]']+=['descriptions']
+        if show_imagesets is True:             args['show[]']+=['imagesets']
+        if show_specs is True:                 args['show[]']+=['specs']
+        if show_category_uids is True:         args['show[]']+=['category_uids']
+        if show_external_links is True:        args['show[]']+=['external_links']
+        if show_reference_designs is True:     args['show[]']+=['reference_designs']
+        if show_cad_models is True:            args['show[]']+=['cad_models']
+        return args
+
+    @classmethod
+    def hides(hide_uid: bool = False,
+              hide_mpn: bool = False,
+              hide_manufacturer: bool = False,
+              hide_brand: bool = False,
+              hide_octopart_url: bool = False,
+              hide_external_links: bool = False,
+              hide_offers: bool = False,
+              hide_broker_listings: bool = False,
+              hide_short_description: bool = False,
+              hide_descriptions: bool = False,
+              hide_imagesets: bool = False,
+              hide_datasheets: bool = False,
+              hide_compliance_documents: bool = False,
+              hide_reference_designs: bool = False,
+              hide_cad_models: bool = False,
+              hide_specs: bool = False,
+              hide_category_uids:bool = False):
+        args = {'hide[]':[]}
+        if hide_uid is True:                   args['hide[]']+=['uid']
+        if hide_mpn is True:                   args['hide[]']+=['mpn']
+        if hide_manufacturer is True:          args['hide[]']+=['manufacturer']
+        if hide_brand is True:                 args['hide[]']+=['brand']
+        if hide_octopart_url is True:          args['hide[]']+=['octopart_url']
+        if hide_offers is True:                args['hide[]']+=['offers']
+        if hide_broker_listings is True:       args['hide[]']+=['broker_listings']
+        if hide_short_description is True:     args['hide[]']+=['short_description']
+        if hide_datasheets is True:            args['hide[]']+=['datasheets']
+        if hide_compliance_documents is True:  args['hide[]']+=['compliante_documents']
+        if hide_descriptions is True:          args['hide[]']+=['descriptions']
+        if hide_imagesets is True:             args['hide[]']+=['imagesets']
+        if hide_specs is True:                 args['hide[]']+=['specs']
+        if hide_category_uids is True:         args['hide[]']+=['category_uids']
+        if hide_external_links is True:        args['hide[]']+=['external_links']
+        if hide_reference_designs is True:     args['hide[]']+=['reference_designs']
+        if hide_cad_models is True:            args['hide[]']+=['cad_models']
+        return args
+
 
     @classmethod
     def new_from_dict(cls, part_dict):
@@ -447,6 +580,9 @@ class OctopartPartAttribute(object):
         else:    # Note: 'else' is not a valid state in the API resource definition
             return self.displayname
 
+
+''' Octopart API proxy '''
+
 class Octopart(object):
 
     """A simple client frontend to tho Octopart public REST API.
@@ -454,17 +590,140 @@ class Octopart(object):
     For detailed API documentation, refer to https://octopart.com/api/docs/v2/rest-api.
     """
 
-    api_url = 'http://octopart.com/api/v2/'
-    __slots__ = ["apikey", "callback", "pretty_print"]
+    api_url = 'http://octopart.com/api/v%d/'
+    __slots__ = ['apikey', 'callback', 'pretty_print', 'verbose']
 
-    def __init__(self, apikey=None, callback=None, pretty_print=False):
+    def __init__(self, apikey=None, callback=None, pretty_print=False, verbose=False):
         self.apikey = apikey
         self.callback = callback
         self.pretty_print = pretty_print
+        self.verbose = verbose
 
-    def parts_suggest(self,
+
+    def _get_data(self, method, args, payload=dict(), ver=2):
+        """Constructs the URL to pass to _get().
+
+        param method: String containing the method path, such as 'parts/search'.
+        param args: Dictionary of arguments to pass to the API method.
+        returns: Complete request URL string.
+        """
+        req_url = Octopart.api_url % ver + method
+
+        if self.apikey:
+            payload['apikey'] = self.apikey
+        if self.callback:
+            payload['callback'] = self.callback
+
+        for arg, val in args.items():
+            if type(val) is bool:
+                v = int(val)
+            elif type(val) is list:
+                v = json.dumps(val)
+            else:
+                v = val
+            payload[arg] = v
+
+        r = requests.get(req_url, params=payload)
+        if r.status_code == 404:
+            return None
+        elif r.status_code == 503:
+            raise Octopart503Error(args, [], [])
+
+        r = r.json()
+
+        if self.verbose:
+            if self.pretty_print:
+                pprint(r)
+            else:
+                print(r)
+
+        if 'message' in r.keys() and r['message'] == 'Invalid API key':
+            raise OctopartInvalidApiKeyError(self.apikey)
+
+        return r
+
+
+    ''' API v3 Methods '''
+
+    def parts_search(self,
+                     q: str = "",
+                     start: int = 0,
+                     limit: int = 10,
+                     sortby: str = "score desc",
+                     ):
+        # filter[fields][<fieldname>][]: string = "",
+        # filter[queries][]: string = "",
+        # facet[fields][<fieldname>][include]: boolean = false,
+        # facet[fields][<fieldname>][exclude_filter]: boolean = false,
+        # facet[fields][<fieldname>][start]: integer = 0,
+        # facet[fields][<fieldname>][limit]: integer = 10,
+        # facet[queries][]: string = "",
+        # stats[<fieldname>][include]: boolean = false,
+        # stats[<fieldname>][exclude_filter]: boolean = false,
+        # spec_drilldown[include]: boolean = false,
+        # spec_drilldown[exclude_filter]: boolean = false,
+        # spec_drilldown[limit]: integer = 10
+        method = 'parts/search'
+
+        if not len(q) >= 2:
+            raise OctopartRangeArgumentError(['q'], [int], [2,float('inf')])
+        if limit not in range(0,101):
+            raise OctopartRangeArgumentError(['limit'], [int], [0,100])
+        if start not in range(0,1001):
+            raise OctopartRangeArgumentError(['limit'], [int], [0,1000])
+
+        json_obj = self._get_data(method, { 'q': q, 'limit': limit, 'start': start}, ver=3)
+
+        if json_obj:
+            return json_obj, json_obj['results']
+        else:
+            return None
+
+    def parts_match(self,
+                    queries: list,
+                    exact_only: bool = False,
+                    **show_hide):
+
+        method = 'parts/match'
+
+        args = { 'queries': queries, 'exact_only': exact_only}
+        params = {}
+
+        params.update(OctopartPart.includes(**select_incls(show_hide)))
+        params.update(OctopartPart.shows(**select_shows(show_hide)))
+        params.update(OctopartPart.hides(**select_hides(show_hide)))
+
+        for q in queries:
+            if type(q) != dict:
+                raise OctopartTypeArgumentError(['queries'], ['str'], [])
+
+        json_obj = self._get_data(method, args, params, ver=3)
+
+        # XXX consider using the following?
+        # items = [OctopartPart.new_from_dict(item) for item in json_obj['results']['items']]
+
+        if json_obj:
+            return json_obj, json_obj['results']
+        else:
+            return None
+
+    def parts_get(self, uid: int):
+        method = 'parts/{:d}'.format(uid)
+
+        json_obj = self._get_data(method, {}, ver=3)
+
+        if json_obj:
+            return json_obj, json_obj['results']
+        else:
+            return None
+
+
+    ''' API v2 Methods '''
+
+    def parts_suggest_v2(self,
                       q: str,
-                      limit: int = None):
+                      limit: int = 25,
+                      start: int = 0):
         """Suggest a part search query string.
 
         Optimized for speed (useful for auto-complete features).
@@ -477,26 +736,19 @@ class Octopart(object):
 
         method = 'parts/suggest'
 
-        if not q >= 2:
+        if not len(q) >= 2:
             raise OctopartRangeArgumentError(['q'], [int], [2,float('inf')])
-        if limit not in range(0,10):
-            raise OctopartRangeArgumentError(['limit'], [int], [0,10])
+        if limit not in range(0,26):
+            raise OctopartRangeArgumentError(['limit'], [int], [0,25])
 
-        try:
-            json_obj = self._get_data(method, args)
-        except HTTPError as e:
-            if e.code == 404:
-                raise Octopart404Error(args, arg_types, arg_ranges)
-            elif e.code == 503:
-                raise Octopart503Error(args, arg_types, arg_ranges)
-            else:
-                raise e
+        json_obj = self._get_data(method, { 'q': q, 'limit': limit, 'start': start}, ver=2)
+
         if json_obj:
             return json_obj, json_obj['results']
         else:
             return None
 
-    def parts_match(self, manufacturer_name: str, mpn: str):
+    def parts_match_v2(self, manufacturer_name: str, mpn: str):
         """Match (manufacturer name, mpn) to part uid.
 
         returns a list of (part uid, manufacturer displayname, mpn) tuples.
@@ -508,15 +760,8 @@ class Octopart(object):
             'mpn': mpn,
             'manufacturer_name': manufacturer_name
         }
-        try:
-            json_obj = self._get_data(method, args)
-        except HTTPError as e:
-            if e.code == 404:
-                raise Octopart404Error(args, [], [])
-            elif e.code == 503:
-                raise Octopart503Error(args, [], [])
-            else:
-                raise e
+        json_obj = self._get_data(method, args, ver=2)
+
         if json_obj:
             return json_obj
         else:
@@ -535,15 +780,8 @@ class Octopart(object):
         args = {
             'fieldname': fieldname
         }
-        try:
-            json_obj = self._get_data(method, args)
-        except HTTPError as e:
-            if e.code == 404:
-                return None
-            elif e.code == 503:
-                raise Octopart503Error(args, [], [])
-            else:
-                raise e
+        json_obj = self._get_data(method, args)
+
         if json_obj:
             return json_obj, OctopartPartAttribute.new_from_dict(json_obj)
         else:
@@ -565,15 +803,8 @@ class Octopart(object):
         args = {
             'fieldnames': fieldnames
         }
-        try:
-            json_obj = self._get_data(method, args)
-        except HTTPError as e:
-            if e.code == 404:
-                raise Octopart404Error(args, [], [])
-            elif e.code == 503:
-                raise Octopart503Error(args, [], [])
-            else:
-                raise e
+        json_obj = self._get_data(method, args, ver=2)
+
         if json_obj:
             return json_obj, [OctopartPartAttribute.new_from_dict(attrib) for attrib in json_obj]
         else:
@@ -628,15 +859,8 @@ class Octopart(object):
             'optimize.hide.specs' :                    optimize_hide_specs,
         }
 
-        try:
-            json_obj = self._get_data(method, args)
-        except HTTPError as e:
-            if e.code == 404:
-                raise Octopart404Error(args, arg_types, arg_ranges)
-            elif e.code == 503:
-                raise Octopart503Error(args, arg_types, arg_ranges)
-            else:
-                raise e
+        json_obj = self._get_data(method, args, ver=2)
+
         results = []
         if json_obj:
             for result in json_obj['results']:

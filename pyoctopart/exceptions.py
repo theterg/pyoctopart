@@ -1,4 +1,22 @@
 #!/usr/bin/env python
+"""
+pyoctopart: A simple Python client library to the Octopart public REST API.
+
+author: Bernard `Guyzmo` Pratz <octopart@m0g.net>
+author: Joe Baker <jbaker@alum.wpi.edu>
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 
 class OctopartException(Exception):
     """Various errors that can be raised by the Octopart API."""
@@ -16,9 +34,17 @@ class OctopartException(Exception):
         string = self.message + args + argt + argr
         return string
 
+class OctopartInvalidApiKeyError(OctopartException):
+    def __init__(self, apikey):
+        OctopartException.__init__(self, [], [], [], "")
+        self.apikey = apikey
+
+    def __str__(self):
+        return "Api key '{}' is invalid! Please set it up!".format(self.apikey)
+
 class OctopartArgumentMissingError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -26,7 +52,7 @@ class OctopartArgumentMissingError(OctopartException):
 
 class OctopartArgumentInvalidError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -34,7 +60,7 @@ class OctopartArgumentInvalidError(OctopartException):
 
 class OctopartTypeArgumentError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -42,7 +68,7 @@ class OctopartTypeArgumentError(OctopartException):
 
 class OctopartRangeArgumentError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -50,7 +76,7 @@ class OctopartRangeArgumentError(OctopartException):
 
 class OctopartStringLengthError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -58,7 +84,7 @@ class OctopartStringLengthError(OctopartException):
 
 class OctopartLimitExceededError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -66,7 +92,7 @@ class OctopartLimitExceededError(OctopartException):
 
 class Octopart404Error(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -74,7 +100,7 @@ class Octopart404Error(OctopartException):
 
 class Octopart503Error(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -82,7 +108,7 @@ class Octopart503Error(OctopartException):
 
 class OctopartNonJsonArgumentError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -90,7 +116,7 @@ class OctopartNonJsonArgumentError(OctopartException):
 
 class OctopartInvalidSortError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
@@ -98,7 +124,7 @@ class OctopartInvalidSortError(OctopartException):
 
 class OctopartTooLongListError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
-        super(self, OctopartException).__init__(
+        OctopartException.__init__(self,
             args,
             arg_types,
             arg_ranges,
