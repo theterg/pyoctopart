@@ -212,7 +212,6 @@ class OctopartManufacturer(object):
 
 class OctopartPart(object):
     @classmethod
-    import pdb; pdb.set_trace()  # XXX BREAKPOINT
     def includes(include_short_description: bool = False,
                  include_datasheets: bool = False,
                  include_compliance_documents: bool = False,
