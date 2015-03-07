@@ -6,6 +6,8 @@ For detailed API documentation, refer to the [Octopart APIv2 documentation](http
 
 This is a fork of [Joe Baker](https://github.com/jbaker0428/Python-Octopart-API)'s work, and this fork is *incompatible* with Python 2 distributions!
 
+You'll find the sources of this project over https://github.com/guyzmo/pyoctopart
+
 ## Usage
 
 ### Install
