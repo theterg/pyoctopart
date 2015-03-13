@@ -212,7 +212,8 @@ class OctopartManufacturer(object):
 
 class OctopartPart(object):
     @classmethod
-    def includes(include_short_description: bool = False,
+    def includes(cls,
+                 include_short_description: bool = False,
                  include_datasheets: bool = False,
                  include_compliance_documents: bool = False,
                  include_descriptions: bool = False,
