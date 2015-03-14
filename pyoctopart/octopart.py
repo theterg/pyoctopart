@@ -237,7 +237,8 @@ class OctopartPart(object):
         return args
 
     @classmethod
-    def shows(show_uid: bool = False,
+    def shows(cls,
+              show_uid: bool = False,
               show_mpn: bool = False,
               show_manufacturer: bool = False,
               show_brand: bool = False,
@@ -275,7 +276,8 @@ class OctopartPart(object):
         return args
 
     @classmethod
-    def hides(hide_uid: bool = False,
+    def hides(cls,
+              hide_uid: bool = False,
               hide_mpn: bool = False,
               hide_manufacturer: bool = False,
               hide_brand: bool = False,
