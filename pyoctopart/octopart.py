@@ -41,7 +41,8 @@ from .exceptions import OctopartInvalidApiKeyError
 
 __version__ = pkg_resources.require('pyoctopart')[0].version
 __author__ = 'Joe Baker <jbaker at alum.wpi.edu>'
-__contributors__ = ['Bernard `Guyzmo` Pratz <pyoctopart at m0g dot net>']
+__contributors__ = ['Bernard `Guyzmo` Pratz <pyoctopart at m0g dot net>',
+                    'Andrew Tergis <theterg at gmail got com>']
 
 ''' Utility features '''
 
@@ -71,15 +72,21 @@ select_hides=curry(select, 'hide_')
 
 ''' Octopart Data maps '''
 
+class OctopartAsset(object):
+    pass
+
+class OctopartAttribution(object):
+    pass
+
 class OctopartBrand(object):
-    def __init__(self, id, dispname, homepage):
+    def __init__(self, id, name, homepage):
         self._id = id
-        self.displayname = dispname
+        self.name = name
         self.homepage_url = homepage
 
     @classmethod
     def new_from_dict(cls, brand_dict):
-        new = cls(brand_dict['id'], brand_dict['displayname'], brand_dict['homepage_url'])
+        new = cls(brand_dict['uid'], brand_dict['name'], brand_dict['homepage_url'])
         return new
 
     @property
@@ -90,9 +97,9 @@ class OctopartBrand(object):
         """Checks the object for data equivalence to a JSON Brand resource."""
 
         if isinstance(resource, dict) and resource.get('__class__') == 'Brand':
-            if self.id != resource.get('id'):
+            if self.id != resource.get('uid'):
                 return False
-            if self.displayname != resource.get('displayname'):
+            if self.name != resource.get('name'):
                 return False
             if self.homepage_url != resource.get('homepage_url'):
                 return False
@@ -105,7 +112,7 @@ class OctopartBrand(object):
             try:
                 if self.id != b.id:
                     return False
-                if self.displayname != b.displayname:
+                if self.name != b.name:
                     return False
                 if self.homepage_url != b.homepage_url:
                     return False
@@ -122,7 +129,13 @@ class OctopartBrand(object):
         return (hash(self.__class__), hash(self.id))
 
     def __str__(self):
-        return ''.join(('Brand ', str(self.id), ': ', self.displayname, ' (', self.homepage_url, ')'))
+        return ''.join(('Brand ', str(self.id), ': ', self.name, ' (', self.homepage_url, ')'))
+
+class OctopartBrokerListing(object):
+    pass
+
+class CotopartCADModel(object):
+    pass
 
 class OctopartCategory(object):
 
@@ -206,6 +219,20 @@ class OctopartCategory(object):
     def __str__(self):
         return ''.join(('Category ', str(self.id), ': ', self.nodename))
 
+class OctopartComplianceDocument(object):
+    pass
+
+class OctopartDatasheet(object):
+    pass
+
+class OctopartDescription(object):
+    pass
+
+class OctopartExternaLinks(object):
+    pass
+
+class OctopartImageSet(object):
+    pass
 
 class OctopartManufacturer(object):
     pass
@@ -213,16 +240,16 @@ class OctopartManufacturer(object):
 class OctopartPart(object):
     @classmethod
     def includes(cls,
-                 include_short_description: bool = False,
-                 include_datasheets: bool = False,
-                 include_compliance_documents: bool = False,
-                 include_descriptions: bool = False,
-                 include_imagesets: bool = False,
-                 include_specs: bool = False,
-                 include_category_uids: bool = False,
-                 include_external_links: bool = False,
-                 include_reference_designs: bool = False,
-                 include_cad_models: bool = False):
+                 include_short_description=False,
+                 include_datasheets=False,
+                 include_compliance_documents=False,
+                 include_descriptions=False,
+                 include_imagesets=False,
+                 include_specs=False,
+                 include_category_uids=False,
+                 include_external_links=False,
+                 include_reference_designs=False,
+                 include_cad_models=False):
         args = {'include[]':[]}
         if include_short_description is True:     args['include[]']+=['short_description']
         if include_datasheets is True:            args['include[]']+=['datasheets']
@@ -238,23 +265,23 @@ class OctopartPart(object):
 
     @classmethod
     def shows(cls,
-              show_uid: bool = False,
-              show_mpn: bool = False,
-              show_manufacturer: bool = False,
-              show_brand: bool = False,
-              show_octopart_url: bool = False,
-              show_external_links: bool = False,
-              show_offers: bool = False,
-              show_broker_listings: bool = False,
-              show_short_description: bool = False,
-              show_descriptions: bool = False,
-              show_imagesets: bool = False,
-              show_datasheets: bool = False,
-              show_compliance_documents: bool = False,
-              show_reference_designs: bool = False,
-              show_cad_models: bool = False,
-              show_specs: bool = False,
-              show_category_uids:bool = False):
+              show_uid=False,
+              show_mpn=False,
+              show_manufacturer=False,
+              show_brand=False,
+              show_octopart_url=False,
+              show_external_links=False,
+              show_offers=False,
+              show_broker_listings=False,
+              show_short_description=False,
+              show_descriptions=False,
+              show_imagesets=False,
+              show_compliance_documents=False,
+              show_datasheets=False,
+              show_reference_designs=False,
+              show_cad_models=False,
+              show_specs=False,
+              show_category_uids=False):
         args = {'show[]':[]}
         if show_uid is True:                   args['show[]']+=['uid']
         if show_mpn is True:                   args['show[]']+=['mpn']
@@ -277,23 +304,23 @@ class OctopartPart(object):
 
     @classmethod
     def hides(cls,
-              hide_uid: bool = False,
-              hide_mpn: bool = False,
-              hide_manufacturer: bool = False,
-              hide_brand: bool = False,
-              hide_octopart_url: bool = False,
-              hide_external_links: bool = False,
-              hide_offers: bool = False,
-              hide_broker_listings: bool = False,
-              hide_short_description: bool = False,
-              hide_descriptions: bool = False,
-              hide_imagesets: bool = False,
-              hide_datasheets: bool = False,
-              hide_compliance_documents: bool = False,
-              hide_reference_designs: bool = False,
-              hide_cad_models: bool = False,
-              hide_specs: bool = False,
-              hide_category_uids:bool = False):
+              hide_uid=False,
+              hide_mpn=False,
+              hide_manufacturer=False,
+              hide_brand=False,
+              hide_octopart_url=False,
+              hide_external_links=False,
+              hide_offers=False,
+              hide_broker_listings=False,
+              hide_short_description=False,
+              hide_descriptions=False,
+              hide_imagesets=False,
+              hide_datasheets=False,
+              hide_compliance_documents=False,
+              hide_reference_designs=False,
+              hide_cad_models=False,
+              hide_specs=False,
+              hide_category_uids=False):
         args = {'hide[]':[]}
         if hide_uid is True:                   args['hide[]']+=['uid']
         if hide_mpn is True:                   args['hide[]']+=['mpn']
@@ -323,18 +350,17 @@ class OctopartPart(object):
         uid = copied_dict.pop('uid')
         mpn = copied_dict.pop('mpn')
         manufacturer = copied_dict.pop('manufacturer')
-        detail_url = copied_dict.pop('detail_url')
-        return cls(uid, mpn, manufacturer, detail_url, **copied_dict)
+        return cls(uid, mpn, manufacturer, **copied_dict)
 
-    def __init__(self, uid, mpn, manufacturer, detail_url, **kwargs):
+    def __init__(self, uid, mpn, manufacturer, **kwargs):
         # If class data is in dictionary format, convert everything to class instances
         # Otherwise, assume it is already in class format and do nothing
         args = copy.deepcopy(kwargs)
         if type(manufacturer) is dict:
             manufacturer = OctopartBrand.new_from_dict(copy.deepcopy(manufacturer))
         for offer in args.get('offers', []):
-            if type(offer['supplier']) is dict:
-                offer['supplier'] = OctopartBrand.new_from_dict(offer['supplier'])
+            if isinstance(offer['seller'], dict):
+                offer['seller'] = OctopartBrand.new_from_dict(offer['seller'])
             # Convert ISO 8601 datetime strings to datetime objects
             if 'update_ts' in offer:
                 # Strip 'Z' UTC notation that can't be parsed
@@ -343,26 +369,33 @@ class OctopartPart(object):
                 offer['update_ts'] = datetime.datetime.strptime(offer['update_ts'], '%Y-%m-%dT%H:%M:%S')
 
         for spec in args.get('specs', []):
-            if type(spec['attribute']) is dict:
+            if isinstance(spec['attribute'], dict):
                 spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
 
         self._uid = uid
         self._mpn = mpn
         self.manufacturer = manufacturer
-        self.detail_url = detail_url
-        self.avg_price = args.get('avg_price')
-        self.avg_avail = args.get('avg_avail')
-        self.market_status = args.get('market_status')
-        self.num_suppliers = args.get('num_suppliers')
-        self.num_authsuppliers = args.get('num_authsuppliers')
-        self.short_description = args.get('short_description', '')
-        self.category_ids = args.get('category_ids', [])
-        self.images = args.get('images', [])
-        self.datasheets = args.get('datasheets', [])
-        self.descriptions = args.get('descriptions', [])
-        self.hyperlinks = args.get('hyperlinks', {})
+        self.brand = args.get('brand')
+        self.external_links = args.get('external_links')
         self.offers = args.get('offers', [])
-        self.specs = args.get('specs', [])
+        self.broker_listings = args.get('broker_listings')
+        self.short_description = args.get('short_description', '')
+        self.descriptions = args.get('descriptions', [])
+        self.imagesets = args.get('imagesets', [])
+        self.datasheets = args.get('datasheets', [])
+        self.compliance_documents = args.get('compliance_documents', [])
+        self.reference_designs = args.get('reference_designs', [])
+        self.cad_models = args.get('cad_models', [])
+        self.specs = args.get('specs')
+        self.category_uids = args.get('category_uids', [])
+        # Deprecated from V2 -> V3:
+        #self.avg_price = args.get('avg_price')
+        #self.avg_avail = args.get('avg_avail')
+        #self.market_status = args.get('market_status')
+        #self.num_suppliers = args.get('num_suppliers')
+        #self.num_authsuppliers = args.get('num_authsuppliers')
+        #self.images = args.get('images', [])
+        #self.hyperlinks = args.get('hyperlinks', {})
 
     @property
     def uid(self):
@@ -516,71 +549,55 @@ class OctopartPart(object):
     def __str__(self):
         return ''.join(('Part ', str(self.uid), ': ', str(self.manufacturer), ' ', self.mpn))
 
-class OctopartPartAttribute(object):
-    TYPE_TEXT = 'text'
-    TYPE_NUMBER = 'number'
+class OctopartPartOffer(object):
+    pass
 
-    @classmethod
-    def new_from_dict(cls, attribute_dict):
-        new = cls(attribute_dict['fieldname'], attribute_dict['displayname'], attribute_dict['type'], attribute_dict.get('metadata', {}))
-        return new
+class OctopartSpecvalue(object):
+    pass
 
-    def __init__(self, fieldname, displayname, attribute_type, metadata):
-        self._fieldname = fieldname
-        self.displayname = displayname
-        self.type = attribute_type
-        self.metadata = metadata
+class OctopartReferenceDesign(object):
+    pass
 
-    @property
-    def fieldname(self):
-        return self._fieldname
+class OctopartSeller(object):
+    pass
 
-    def equals_json(self, resource):
-        """Checks the object for data equivalence to a JSON PartAttribute resource."""
+class OctopartSource(object):
+    pass
 
-        if isinstance(resource, dict) and resource.get('__class__') == 'PartAttribute':
-            if self.fieldname != resource.get('fieldname'):
-                return False
-            if self.displayname != resource.get('displayname'):
-                return False
-            if self.type != resource.get('type'):
-                return False
-            if self.metadata != resource.get('metadata', {}):
-                return False
-        else:
-            return False
-        return True
+class OctopartSpecMetadata(object):
+    pass
 
-    def __eq__(self, pa):
-        if isinstance(pa, OctopartPartAttribute):
-            try:
-                if self.fieldname != pa.fieldname:
-                    return False
-                if self.displayname != pa.displayname:
-                    return False
-                if self.type != pa.type:
-                    return False
-                if self.metadata != pa.metadata:
-                    return False
-            except AttributeError:
-                return False
-        else:
-            return False
-        return True
+class OctopartUnitOfMeasurement(object):
+    pass
 
-    def __ne__(self, pa):
-        return not self.__eq__(pa)
+# Response Schemas
 
-    def __hash__(self):
-        return (hash(self.__class__), hash(self.fieldname))
+class OctopartPartsMatchRequest(object):
+    pass
 
-    def __str__(self):
-        if self.type == 'number':
-            return ''.join((self.displayname, 'attribute: ', self.metadata['datatype'], ' (', self.metadata['unit']['name'], ')'))
-        elif self.type == 'text':
-            return ''.join((self.displayname, 'attribute: ', self.type))
-        else:    # Note: 'else' is not a valid state in the API resource definition
-            return self.displayname
+class OctopartPartsMatchQuery(object):
+    pass
+
+class OctopartPartsMatchResponse(object):
+    pass
+
+class OctopartPartsMatchResult(object):
+    pass
+
+class OctopartSearchRequest(object):
+    pass
+
+class OctopartSearchResponse(object):
+    pass
+
+class OctopartSearchResult(object):
+    pass
+
+class OctopartSearchFacetResult(object):
+    pass
+
+class OctopartSearchStatsResult(object):
+    pass
 
 
 ''' Octopart API proxy '''
@@ -648,10 +665,10 @@ class Octopart(object):
     ''' API v3 Methods '''
 
     def parts_search(self,
-                     q: str = "",
-                     start: int = 0,
-                     limit: int = 10,
-                     sortby: str = "score desc",
+                     q="",
+                     start=0,
+                     limit=10,
+                     sortby="score desc",
                      ):
         # filter[fields][<fieldname>][]: string = "",
         # filter[queries][]: string = "",
@@ -682,8 +699,8 @@ class Octopart(object):
             return None
 
     def parts_match(self,
-                    queries: list,
-                    exact_only: bool = False,
+                    queries,
+                    exact_only=False,
                     **show_hide):
 
         method = 'parts/match'
@@ -709,7 +726,7 @@ class Octopart(object):
         else:
             return None
 
-    def parts_get(self, uid: int):
+    def parts_get(self, uid):
         method = 'parts/{:d}'.format(uid)
 
         json_obj = self._get_data(method, {}, ver=3)
@@ -723,9 +740,9 @@ class Octopart(object):
     ''' API v2 Methods '''
 
     def parts_suggest_v2(self,
-                      q: str,
-                      limit: int = 25,
-                      start: int = 0):
+                      q,
+                      limit=25,
+                      start=0):
         """Suggest a part search query string.
 
         Optimized for speed (useful for auto-complete features).
@@ -750,7 +767,7 @@ class Octopart(object):
         else:
             return None
 
-    def parts_match_v2(self, manufacturer_name: str, mpn: str):
+    def parts_match_v2(self, manufacturer_name, mpn):
         """Match (manufacturer name, mpn) to part uid.
 
         returns a list of (part uid, manufacturer displayname, mpn) tuples.
@@ -769,7 +786,7 @@ class Octopart(object):
         else:
             return None
 
-    def partattributes_get(self, fieldname: str):
+    def partattributes_get(self, fieldname):
         """Fetch a PartAttribute object by its fieldname.
 
         returns A pair containing:
@@ -789,7 +806,7 @@ class Octopart(object):
         else:
             return None
 
-    def partattributes_get_multi(self, fieldnames: list):
+    def partattributes_get_multi(self, fieldnames):
         """Fetch multiple PartAttribute objects by their fieldnames.
 
         returns A pair containing:
@@ -813,14 +830,14 @@ class Octopart(object):
             return None
 
     def bom_match(self,
-                  lines: list,
-                  optimize_return_stubs : bool = False,
-                  optimize_hide_datasheets : bool = False,
-                  optimize_hide_descriptions : bool = False,
-                  optimize_hide_images : bool = False,
-                  optimize_hide_hide_offers : bool = False,
-                  optimize_hide_hide_unauthorized_offers : bool = False,
-                  optimize_hide_specs : bool = False):
+                  lines,
+                  optimize_return_stubs=False,
+                  optimize_hide_datasheets=False,
+                  optimize_hide_descriptions=False,
+                  optimize_hide_images=False,
+                  optimize_hide_hide_offers=False,
+                  optimize_hide_hide_unauthorized_offers=False,
+                  optimize_hide_specs=False):
         """Match a list of part numbers to Octopart part objects.
 
         returns A pair containing:
@@ -835,15 +852,15 @@ class Octopart(object):
 
         method = 'bom/match'
 
-        def check_line(q: str,
-                       mpn : str = None,
-                       manufacturer : str = None,
-                       sku : str = None,
-                       supplier : str = None,
-                       mpn_or_sku : str = None,
-                       start : int = 0,
-                       limit : int = 0,
-                       reference : str = None):
+        def check_line(q,
+                       mpn=None,
+                       manufacturer=None,
+                       sku=None,
+                       supplier=None,
+                       mpn_or_sku=None,
+                       start=0,
+                       limit=0,
+                       reference=None):
             if limit < 0 and limit > 20:
                 raise OctopartArgumentMissingError([], [], [])
 

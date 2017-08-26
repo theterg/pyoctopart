@@ -11,3 +11,7 @@ bin/*
 .coverage
 *.egg-info
 .installed.cfg
+build/
+dist/
+*.egg/
+.ipynb_checkpoints/

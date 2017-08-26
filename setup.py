@@ -2,9 +2,6 @@ from setuptools import setup
 import os
 import sys
 
-if sys.version_info.major != 3:
-    raise Exception("Sorry this package only works with python3.")
-
 setup(name='pyoctopart',
       version='0.6.3',
       description="Python library to connect to Octopart",
