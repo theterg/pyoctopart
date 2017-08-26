@@ -34,7 +34,7 @@ class OctopartException(Exception):
         string = self.message + args + argt + argr
         return string
 
-class OctopartInvalidApiKeyError(OctopartException):
+class InvalidApiKeyError(OctopartException):
     def __init__(self, apikey):
         OctopartException.__init__(self, [], [], [], "")
         self.apikey = apikey
@@ -42,7 +42,7 @@ class OctopartInvalidApiKeyError(OctopartException):
     def __str__(self):
         return "Api key '{}' is invalid! Please set it up!".format(self.apikey)
 
-class OctopartArgumentMissingError(OctopartException):
+class ArgumentMissingError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -50,7 +50,7 @@ class OctopartArgumentMissingError(OctopartException):
             arg_ranges,
             'Required argument missing from method call.')
 
-class OctopartArgumentInvalidError(OctopartException):
+class ArgumentInvalidError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -58,7 +58,7 @@ class OctopartArgumentInvalidError(OctopartException):
             arg_ranges,
             'Passed an invalid argument for this method.')
 
-class OctopartTypeArgumentError(OctopartException):
+class TypeArgumentError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -66,7 +66,7 @@ class OctopartTypeArgumentError(OctopartException):
             arg_ranges,
             'Argument type mismatch.')
 
-class OctopartRangeArgumentError(OctopartException):
+class RangeArgumentError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -74,7 +74,7 @@ class OctopartRangeArgumentError(OctopartException):
             arg_ranges,
             'Numeric argument value out of valid range.')
 
-class OctopartStringLengthError(OctopartException):
+class StringLengthError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -82,7 +82,7 @@ class OctopartStringLengthError(OctopartException):
             arg_ranges,
             'String argument outside of allowed length.')
 
-class OctopartLimitExceededError(OctopartException):
+class LimitExceededError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -90,7 +90,7 @@ class OctopartLimitExceededError(OctopartException):
             arg_ranges,
             'Value of (start+limit) in a bom/match line argument exceeds 100.')
 
-class Octopart404Error(OctopartException):
+class HTML404Error(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -98,7 +98,7 @@ class Octopart404Error(OctopartException):
             arg_ranges,
             'Unexpected HTTP Error 404.')
 
-class Octopart503Error(OctopartException):
+class HTML503Error(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -106,7 +106,7 @@ class Octopart503Error(OctopartException):
             arg_ranges,
             'Unexpected HTTP Error 503.')
 
-class OctopartNonJsonArgumentError(OctopartException):
+class NonJsonArgumentError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -114,7 +114,7 @@ class OctopartNonJsonArgumentError(OctopartException):
             arg_ranges,
             'Argument is not a JSON-encoded list of pairs.')
 
-class OctopartInvalidSortError(OctopartException):
+class InvalidSortError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,
@@ -122,7 +122,7 @@ class OctopartInvalidSortError(OctopartException):
             arg_ranges,
             'Invalid sort order. Valid sort order strings are "asc" and "desc".')
 
-class OctopartTooLongListError(OctopartException):
+class TooLongListError(OctopartException):
     def __init__(self, args, arg_types, arg_ranges):
         OctopartException.__init__(self,
             args,

@@ -26,18 +26,18 @@ import pkg_resources
 
 from pprint import pprint
 
-from .exceptions import OctopartArgumentMissingError
-from .exceptions import OctopartArgumentInvalidError
-from .exceptions import OctopartTypeArgumentError
-from .exceptions import OctopartRangeArgumentError
-from .exceptions import OctopartStringLengthError
-from .exceptions import OctopartLimitExceededError
-from .exceptions import Octopart404Error
-from .exceptions import Octopart503Error
-from .exceptions import OctopartNonJsonArgumentError
-from .exceptions import OctopartInvalidSortError
-from .exceptions import OctopartTooLongListError
-from .exceptions import OctopartInvalidApiKeyError
+from .exceptions import ArgumentMissingError
+from .exceptions import ArgumentInvalidError
+from .exceptions import TypeArgumentError
+from .exceptions import RangeArgumentError
+from .exceptions import StringLengthError
+from .exceptions import LimitExceededError
+from .exceptions import HTML404Error
+from .exceptions import HTML503Error
+from .exceptions import NonJsonArgumentError
+from .exceptions import InvalidSortError
+from .exceptions import TooLongListError
+from .exceptions import InvalidApiKeyError
 
 __version__ = pkg_resources.require('pyoctopart')[0].version
 __author__ = 'Joe Baker <jbaker at alum.wpi.edu>'
@@ -72,13 +72,13 @@ select_hides=curry(select, 'hide_')
 
 ''' Octopart Data maps '''
 
-class OctopartAsset(object):
+class Asset(object):
     pass
 
-class OctopartAttribution(object):
+class Attribution(object):
     pass
 
-class OctopartBrand(object):
+class Brand(object):
     def __init__(self, id, name, homepage):
         self._id = id
         self.name = name
@@ -108,7 +108,7 @@ class OctopartBrand(object):
         return True
 
     def __eq__(self, b):
-        if isinstance(b, OctopartBrand):
+        if isinstance(b, Brand):
             try:
                 if self.id != b.id:
                     return False
@@ -131,13 +131,13 @@ class OctopartBrand(object):
     def __str__(self):
         return ''.join(('Brand ', str(self.id), ': ', self.name, ' (', self.homepage_url, ')'))
 
-class OctopartBrokerListing(object):
+class BrokerListing(object):
     pass
 
-class CotopartCADModel(object):
+class CADModel(object):
     pass
 
-class OctopartCategory(object):
+class Category(object):
 
     @classmethod
     def new_from_dict(cls, category_dict):
@@ -186,7 +186,7 @@ class OctopartCategory(object):
         return True
 
     def __eq__(self, c):
-        if isinstance(c, OctopartCategory):
+        if isinstance(c, Category):
             try:
                 if self.id != c.id:
                     return False
@@ -219,25 +219,25 @@ class OctopartCategory(object):
     def __str__(self):
         return ''.join(('Category ', str(self.id), ': ', self.nodename))
 
-class OctopartComplianceDocument(object):
+class ComplianceDocument(object):
     pass
 
-class OctopartDatasheet(object):
+class Datasheet(object):
     pass
 
-class OctopartDescription(object):
+class Description(object):
     pass
 
-class OctopartExternaLinks(object):
+class ExternaLinks(object):
     pass
 
-class OctopartImageSet(object):
+class ImageSet(object):
     pass
 
-class OctopartManufacturer(object):
+class Manufacturer(object):
     pass
 
-class OctopartPart(object):
+class Part(object):
     @classmethod
     def includes(cls,
                  include_short_description=False,
@@ -357,10 +357,10 @@ class OctopartPart(object):
         # Otherwise, assume it is already in class format and do nothing
         args = copy.deepcopy(kwargs)
         if type(manufacturer) is dict:
-            manufacturer = OctopartBrand.new_from_dict(copy.deepcopy(manufacturer))
+            manufacturer = Brand.new_from_dict(copy.deepcopy(manufacturer))
         for offer in args.get('offers', []):
             if isinstance(offer['seller'], dict):
-                offer['seller'] = OctopartBrand.new_from_dict(offer['seller'])
+                offer['seller'] = Brand.new_from_dict(offer['seller'])
             # Convert ISO 8601 datetime strings to datetime objects
             if 'update_ts' in offer:
                 # Strip 'Z' UTC notation that can't be parsed
@@ -370,7 +370,7 @@ class OctopartPart(object):
 
         for spec in args.get('specs', []):
             if isinstance(spec['attribute'], dict):
-                spec['attribute'] = OctopartPartAttribute.new_from_dict(spec['attribute'])
+                spec['attribute'] = PartAttribute.new_from_dict(spec['attribute'])
 
         self._uid = uid
         self._mpn = mpn
@@ -418,7 +418,7 @@ class OctopartPart(object):
         def compare_offers(class_offer, json_offer):
             """
             Compares two offers.
-            class_offer: An offer from an OctopartPart instance.
+            class_offer: An offer from an Part instance.
             json_offer: An offer from a JSON Part resource.
             """
 
@@ -437,7 +437,7 @@ class OctopartPart(object):
         def compare_specs(class_spec, json_spec):
             """
             Compares two specs.
-            class_spec: A spec from an OctopartPart instance.
+            class_spec: A spec from an Part instance.
             json_spec: A spec from a JSON Part resource.
             """
 
@@ -498,7 +498,7 @@ class OctopartPart(object):
         return True
 
     def __eq__(self, p):
-        if isinstance(p, OctopartPart):
+        if isinstance(p, Part):
             try:
                 if self.uid != p.uid:
                     return False
@@ -549,54 +549,54 @@ class OctopartPart(object):
     def __str__(self):
         return ''.join(('Part ', str(self.uid), ': ', str(self.manufacturer), ' ', self.mpn))
 
-class OctopartPartOffer(object):
+class PartOffer(object):
     pass
 
-class OctopartSpecvalue(object):
+class Specvalue(object):
     pass
 
-class OctopartReferenceDesign(object):
+class ReferenceDesign(object):
     pass
 
-class OctopartSeller(object):
+class Seller(object):
     pass
 
-class OctopartSource(object):
+class Source(object):
     pass
 
-class OctopartSpecMetadata(object):
+class SpecMetadata(object):
     pass
 
-class OctopartUnitOfMeasurement(object):
+class UnitOfMeasurement(object):
     pass
 
 # Response Schemas
 
-class OctopartPartsMatchRequest(object):
+class PartsMatchRequest(object):
     pass
 
-class OctopartPartsMatchQuery(object):
+class PartsMatchQuery(object):
     pass
 
-class OctopartPartsMatchResponse(object):
+class PartsMatchResponse(object):
     pass
 
-class OctopartPartsMatchResult(object):
+class PartsMatchResult(object):
     pass
 
-class OctopartSearchRequest(object):
+class SearchRequest(object):
     pass
 
-class OctopartSearchResponse(object):
+class SearchResponse(object):
     pass
 
-class OctopartSearchResult(object):
+class SearchResult(object):
     pass
 
-class OctopartSearchFacetResult(object):
+class SearchFacetResult(object):
     pass
 
-class OctopartSearchStatsResult(object):
+class SearchStatsResult(object):
     pass
 
 
@@ -646,7 +646,7 @@ class Octopart(object):
         if r.status_code == 404:
             return None
         elif r.status_code == 503:
-            raise Octopart503Error(args, [], [])
+            raise HTML503Error(args, [], [])
 
         r = r.json()
 
@@ -657,7 +657,7 @@ class Octopart(object):
                 print(r)
 
         if 'message' in r.keys() and r['message'] == 'Invalid API key':
-            raise OctopartInvalidApiKeyError(self.apikey)
+            raise InvalidApiKeyError(self.apikey)
 
         return r
 
@@ -685,11 +685,11 @@ class Octopart(object):
         method = 'parts/search'
 
         if not len(q) >= 2:
-            raise OctopartRangeArgumentError(['q'], [int], [2,float('inf')])
+            raise RangeArgumentError(['q'], [int], [2,float('inf')])
         if limit not in range(0,101):
-            raise OctopartRangeArgumentError(['limit'], [int], [0,100])
+            raise RangeArgumentError(['limit'], [int], [0,100])
         if start not in range(0,1001):
-            raise OctopartRangeArgumentError(['limit'], [int], [0,1000])
+            raise RangeArgumentError(['limit'], [int], [0,1000])
 
         json_obj = self._get_data(method, { 'q': q, 'limit': limit, 'start': start}, ver=3)
 
@@ -708,18 +708,18 @@ class Octopart(object):
         args = { 'queries': queries, 'exact_only': exact_only}
         params = {}
 
-        params.update(OctopartPart.includes(**select_incls(show_hide)))
-        params.update(OctopartPart.shows(**select_shows(show_hide)))
-        params.update(OctopartPart.hides(**select_hides(show_hide)))
+        params.update(Part.includes(**select_incls(show_hide)))
+        params.update(Part.shows(**select_shows(show_hide)))
+        params.update(Part.hides(**select_hides(show_hide)))
 
         for q in queries:
             if type(q) != dict:
-                raise OctopartTypeArgumentError(['queries'], ['str'], [])
+                raise TypeArgumentError(['queries'], ['str'], [])
 
         json_obj = self._get_data(method, args, params, ver=3)
 
         # XXX consider using the following?
-        # items = [OctopartPart.new_from_dict(item) for item in json_obj['results']['items']]
+        # items = [Part.new_from_dict(item) for item in json_obj['results']['items']]
 
         if json_obj:
             return json_obj, json_obj['results']
@@ -756,9 +756,9 @@ class Octopart(object):
         method = 'parts/suggest'
 
         if not len(q) >= 2:
-            raise OctopartRangeArgumentError(['q'], [int], [2,float('inf')])
+            raise RangeArgumentError(['q'], [int], [2,float('inf')])
         if limit not in range(0,26):
-            raise OctopartRangeArgumentError(['limit'], [int], [0,25])
+            raise RangeArgumentError(['limit'], [int], [0,25])
 
         json_obj = self._get_data(method, { 'q': q, 'limit': limit, 'start': start}, ver=2)
 
@@ -791,7 +791,7 @@ class Octopart(object):
 
         returns A pair containing:
             -The raw JSON result dictionary.
-            -An OctopartPartAttribute object.
+            -An PartAttribute object.
         If no JSON object is found without an Exception being raised, returns None.
         """
 
@@ -802,7 +802,7 @@ class Octopart(object):
         json_obj = self._get_data(method, args)
 
         if json_obj:
-            return json_obj, OctopartPartAttribute.new_from_dict(json_obj)
+            return json_obj, PartAttribute.new_from_dict(json_obj)
         else:
             return None
 
@@ -811,13 +811,13 @@ class Octopart(object):
 
         returns A pair containing:
             -The raw JSON result dictionary.
-            -A list of OctopartPartAttribute objects.
+            -A list of PartAttribute objects.
         If no JSON object is found without an Exception being raised, returns None.
         """
         method = 'partattributes/get_multi'
         for name in fieldnames:
             if isinstance(name, str) is False:
-                raise OctopartTypeArgumentError(args, [], [])
+                raise TypeArgumentError(args, [], [])
 
         args = {
             'fieldnames': fieldnames
@@ -825,7 +825,7 @@ class Octopart(object):
         json_obj = self._get_data(method, args, ver=2)
 
         if json_obj:
-            return json_obj, [OctopartPartAttribute.new_from_dict(attrib) for attrib in json_obj]
+            return json_obj, [PartAttribute.new_from_dict(attrib) for attrib in json_obj]
         else:
             return None
 
@@ -838,12 +838,12 @@ class Octopart(object):
                   optimize_hide_hide_offers=False,
                   optimize_hide_hide_unauthorized_offers=False,
                   optimize_hide_specs=False):
-        """Match a list of part numbers to Octopart part objects.
+        """Match a list of part numbers to  part objects.
 
         returns A pair containing:
             -The raw JSON result dictionary.
             -A list of dicts containing:
-                -A list of OctopartParts.
+                -A list of Parts.
                 -A reference string.
                 -A status string.
                 -Optionally, the number of search hits.
@@ -862,7 +862,7 @@ class Octopart(object):
                        limit=0,
                        reference=None):
             if limit < 0 and limit > 20:
-                raise OctopartArgumentMissingError([], [], [])
+                raise ArgumentMissingError([], [], [])
 
         for line in lines:
             check_line(line)
@@ -883,7 +883,7 @@ class Octopart(object):
         results = []
         if json_obj:
             for result in json_obj['results']:
-                items = [OctopartPart.new_from_dict(item) for item in result['items']]
+                items = [Part.new_from_dict(item) for item in result['items']]
                 new_result = {'items' : items, 'reference' : result.get('reference', ''), 'status' : result['status']}
                 if result.get('hits') is not None:
                     new_result['hits'] = result.get('hits')
