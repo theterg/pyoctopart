@@ -23,6 +23,7 @@ import json
 import requests
 import datetime
 import pkg_resources
+import inspect
 
 from pprint import pprint
 
@@ -61,6 +62,19 @@ class curry:
 
         return self.fun(*(self.pending + args), **kw)
 
+def dictToClass(obj, cls):
+    ''' Check if obj is an instance of cls, instantiate it otherwise '''
+    if not isinstance(obj, cls):
+        return cls.new_from_dict(obj)
+    return obj
+
+def listToClass(objects, cls):
+    ''' Given a list of dicts, instantiate them each as cls '''
+    ret = []
+    for obj in objects:
+        obj = dictToClass(obj, cls)
+        ret.append(obj)
+    return ret
 
 def select(param, d):
     return {k: v for k, v in d.items() if param in k}
@@ -73,14 +87,20 @@ select_hides=curry(select, 'hide_')
 ''' Octopart Data maps '''
 
 class Asset(object):
-    pass
+    def __init__(self, url, mimetype, **kwargs):
+        args = copy.deepcopy(kwargs)
+        self.url = url
+        self.mimetype = mimetype
+        self.metadata = args.get('metadata')
 
 class Attribution(object):
-    pass
+    def __init__(self, sources, first_acquired):
+        self.sources = sources
+        self.first_acquired = acquired
 
 class Brand(object):
-    def __init__(self, id, name, homepage):
-        self._id = id
+    def __init__(self, uid, name, homepage):
+        self.uid = uid
         self.name = name
         self.homepage_url = homepage
 
@@ -89,15 +109,11 @@ class Brand(object):
         new = cls(brand_dict['uid'], brand_dict['name'], brand_dict['homepage_url'])
         return new
 
-    @property
-    def id(self):
-        return self._id
-
     def equals_json(self, resource):
         """Checks the object for data equivalence to a JSON Brand resource."""
 
         if isinstance(resource, dict) and resource.get('__class__') == 'Brand':
-            if self.id != resource.get('uid'):
+            if self.uid != resource.get('uid'):
                 return False
             if self.name != resource.get('name'):
                 return False
@@ -110,7 +126,7 @@ class Brand(object):
     def __eq__(self, b):
         if isinstance(b, Brand):
             try:
-                if self.id != b.id:
+                if self.uid != b.uid:
                     return False
                 if self.name != b.name:
                     return False
@@ -126,60 +142,67 @@ class Brand(object):
         return not self.__eq__(b)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.id))
+        return (hash(self.__class__), hash(self.uid))
 
     def __str__(self):
-        return ''.join(('Brand ', str(self.id), ': ', self.name, ' (', self.homepage_url, ')'))
+        return ''.join(('Brand ', str(self.uid), ': ', self.name, ' (', self.homepage_url, ')'))
 
 class BrokerListing(object):
-    pass
+    def __init__(self, seller, listing_url, octopart_rfq_url):
+        if not isinstance(seller, Seller):
+            seller = Seller.new_from_dict(seller)
+        self.seller = seller
+        self.listing_url = listing_url
+        self.octopart_rfq_url = octopart_rfq_url
 
-class CADModel(object):
-    pass
+class CADModel(Asset):
+    def __init__(self, url, mimetype, **kwargs):
+        super(self.__class__, self).__init__(url, mimetype, **kwargs)
+        args = copy.deepcopy(kwargs)
+        self.attribution = args.get('attribution')
+
 
 class Category(object):
 
-    @classmethod
-    def new_from_dict(cls, category_dict):
-        new_dict = copy.deepcopy(category_dict)
-        new = cls(new_dict['id'], new_dict['parent_id'], new_dict['nodename'], \
-                            new_dict['images'], new_dict['children_ids'], new_dict['ancestor_ids'], \
-                            new_dict.get('ancestors', []), new_dict['num_parts'])
-        return new
+    #@classmethod
+    #def new_from_dict(cls, category_dict):
+    #    new_dict = copy.deepcopy(category_dict)
+    #    new = cls(new_dict['id'], new_dict['parent_id'], new_dict['nodename'], \
+    #                        new_dict['images'], new_dict['children_ids'], new_dict['ancestor_ids'], \
+    #                        new_dict.get('ancestors', []), new_dict['num_parts'])
+    #    return new
 
-    def __init__(self, id, parent_id, nodename, images, children_ids, ancestor_ids, ancestors, num_parts):
-        self._id = id
-        self.parent_id = parent_id
-        self.nodename = nodename
-        self.images = images    # List of dicts of URLs
-        self.children_ids = children_ids    # List of child node ids
-        self.ancestor_ids = ancestor_ids    # Sorted list of ancestor node ids (immediate parent first)
-        self.ancestors = ancestors    # Sorted list of category objects
+    def __init__(self, uid, name, parent_uid, children_uids, ancestor_uids,
+                 ancestor_names, num_parts, **kwargs):
+        args = copy.deepcopy(kwargs)
+        self.uid = uid
+        self.name = name
+        self.parent_uid = parent_uid
+        self.children_uids = children_uids
+        self.ancestor_uids = ancestor_uids
+        self.ancestor_names = ancestor_names
         self.num_parts = num_parts
-
-    @property
-    def id(self):
-        return self._id
+        self.imagesets = args.get('imagesets', [])
 
     def equals_json(self, resource):
         """Checks the object for data equivalence to a JSON Category resource."""
 
         if isinstance(resource, dict) and resource.get('__class__') == 'Category':
-            if self.id != resource.get('id'):
+            if self.uid != resource.get('uid'):
                 return False
-            if self.parent_id != resource.get('parent_id'):
+            if self.name != resource.get('name'):
                 return False
-            if self.nodename != resource.get('nodename'):
+            if self.parent_uid != resource.get('parent_uid'):
                 return False
-            if sorted(self.images) != sorted(resource.get('images')):
+            if sorted(self.children_uids) != sorted(resource.get('children_uids', [])):
                 return False
-            if sorted(self.children_ids) != sorted(resource.get('children_ids')):
+            if sorted(self.ancestor_uids) != sorted(resource.get('ancestor_uids', [])):
                 return False
-            if sorted(self.ancestor_ids) != sorted(resource.get('ancestor_ids')):
-                return False
-            if set(self.ancestors) != set(resource.get('ancestors', [])):
+            if sorted(self.ancestor_names) != sorted(resource.get('ancestor_names', [])):
                 return False
             if self.num_parts != resource.get('num_parts'):
+                return False
+            if sorted(self.imagesets) != sorted(resource.get('imagesets', [])):
                 return False
         else:
             return False
@@ -188,21 +211,21 @@ class Category(object):
     def __eq__(self, c):
         if isinstance(c, Category):
             try:
-                if self.id != c.id:
+                if self.uid != c.uid:
                     return False
-                if self.parent_id != c.parent_id:
+                if self.name != c.name:
                     return False
-                if self.nodename != c.nodename:
+                if self.parent_uid != c.parent_uid:
                     return False
-                if sorted(self.images != c.images):
+                if sorted(self.children_uids) != sorted(c.children_uids):
                     return False
-                if sorted(self.children_ids) != sorted(c.children_ids):
+                if sorted(self.ancestor_uids) != sorted(c.ancestor_uids):
                     return False
-                if sorted(self.ancestor_ids) != sorted(c.ancestor_ids):
-                    return False
-                if set(self.ancestors) != set(c.ancestors):
+                if sorted(self.ancestor_names) != sorted(c.ancestor_names):
                     return False
                 if self.num_parts != c.num_parts:
+                    return False
+                if sorted(self.imagesets) != sorted(c.imagesets):
                     return False
             except AttributeError:
                 return False
@@ -214,28 +237,51 @@ class Category(object):
         return not self.__eq__(c)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.id))
+        return (hash(self.__class__), hash(self.uid))
 
     def __str__(self):
-        return ''.join(('Category ', str(self.id), ': ', self.nodename))
+        return ''.join(('Category ', str(self.uid), ': ', self.name))
 
-class ComplianceDocument(object):
-    pass
+class ComplianceDocument(Asset):
+    def __init__(self, url, mimetype, **kwargs):
+        super(self.__class__, self).__init__(url, mimetype, **kwargs)
+        args = copy.deepcopy(kwargs)
+        self.attribution = args.get('attribution')
+        self.subtypes = args.get('subtypes', [])
 
-class Datasheet(object):
-    pass
+class Datasheet(Asset):
+    def __init__(self, url, mimetype, **kwargs):
+        super(self.__class__, self).__init__(url, mimetype, **kwargs)
+        args = copy.deepcopy(kwargs)
+        self.attribution = args.get('attribution')
 
 class Description(object):
-    pass
+    def __init__(self, value, attribution):
+        self.value = value
+        self.attribution = attribution
 
 class ExternaLinks(object):
-    pass
+    def __init__(self, product_url, freesample_url, evalkit_url):
+        self.product_url = product_url
+        self.freesample_url = freesample_url
+        self.evalkit_url = evalkit_url
 
 class ImageSet(object):
-    pass
+    def __init__(self, swatch_image, small_image, medium_image, large_image,
+                 attribution, credit_string, credit_url):
+        self.swatch_image = dictToClass(swatch_image, Asset)
+        self.small_image = dictToClass(small_image, Asset)
+        self.medium_image = dictToClass(medium_image, Asset)
+        self.large_image = dictToClass(large_image, Asset)
+        self.attribution = attribution
+        self.credit_string = credit_string
+        self.credit_url = credit_url
 
 class Manufacturer(object):
-    pass
+    def __init__(self, uid, name, homepage_url):
+        self.uid = uid
+        self.name = name
+        self.homepage_url = homepage_url
 
 class Part(object):
     @classmethod
@@ -355,38 +401,22 @@ class Part(object):
     def __init__(self, uid, mpn, manufacturer, **kwargs):
         # If class data is in dictionary format, convert everything to class instances
         # Otherwise, assume it is already in class format and do nothing
+        self.uid = uid
+        self.mpn = mpn
         args = copy.deepcopy(kwargs)
-        if type(manufacturer) is dict:
-            manufacturer = Brand.new_from_dict(copy.deepcopy(manufacturer))
-        for offer in args.get('offers', []):
-            if isinstance(offer['seller'], dict):
-                offer['seller'] = Brand.new_from_dict(offer['seller'])
-            # Convert ISO 8601 datetime strings to datetime objects
-            if 'update_ts' in offer:
-                # Strip 'Z' UTC notation that can't be parsed
-                if offer['update_ts'][-1] == 'Z':
-                    offer['update_ts'] = offer['update_ts'][0:-1]
-                offer['update_ts'] = datetime.datetime.strptime(offer['update_ts'], '%Y-%m-%dT%H:%M:%S')
-
-        for spec in args.get('specs', []):
-            if isinstance(spec['attribute'], dict):
-                spec['attribute'] = PartAttribute.new_from_dict(spec['attribute'])
-
-        self._uid = uid
-        self._mpn = mpn
-        self.manufacturer = manufacturer
+        self.manufacturer = dictToClass(manufacturer, Manufacturer)
         self.brand = args.get('brand')
         self.external_links = args.get('external_links')
-        self.offers = args.get('offers', [])
-        self.broker_listings = args.get('broker_listings')
+        self.offers = listToClass(args.get('offers', []), PartOffer)
+        self.broker_listings = listToClass(args.get('broker_listings', []), BrokerListing)
         self.short_description = args.get('short_description', '')
-        self.descriptions = args.get('descriptions', [])
-        self.imagesets = args.get('imagesets', [])
-        self.datasheets = args.get('datasheets', [])
-        self.compliance_documents = args.get('compliance_documents', [])
-        self.reference_designs = args.get('reference_designs', [])
-        self.cad_models = args.get('cad_models', [])
-        self.specs = args.get('specs')
+        self.descriptions = listToClass(args.get('descriptions', []), Description)
+        self.imagesets = listToClass(args.get('imagesets', []), ImageSet)
+        self.datasheets = listToClass(args.get('datasheets', []), Datasheet)
+        self.compliance_documents = listToClass(args.get('compliance_documents', []), ComplianceDocument)
+        self.reference_designs = listToClass(args.get('reference_designs', []), ReferenceDesign)
+        self.cad_models = listToClass(args.get('cad_models', []), CADModel)
+        self.specs = ListToClass(args.get('specs', []), SpecValue)
         self.category_uids = args.get('category_uids', [])
         # Deprecated from V2 -> V3:
         #self.avg_price = args.get('avg_price')
@@ -396,14 +426,6 @@ class Part(object):
         #self.num_authsuppliers = args.get('num_authsuppliers')
         #self.images = args.get('images', [])
         #self.hyperlinks = args.get('hyperlinks', {})
-
-    @property
-    def uid(self):
-        return self._uid
-
-    @property
-    def mpn(self):
-        return self._mpn
 
     def get_authorized_offers(self):
         return [o for o in self.offers if o['is_authorized'] is True]
@@ -550,55 +572,160 @@ class Part(object):
         return ''.join(('Part ', str(self.uid), ': ', str(self.manufacturer), ' ', self.mpn))
 
 class PartOffer(object):
-    pass
+    def __init__(self, sku, seller, eligible_region, product_url, octopart_rfq_url, prices,
+            in_stock_quantity, on_order_quantity, on_order_eta, factory_lead_days,
+            factory_order_multiple, order_multiple, moq, packaging, is_authorized, last_updated):
+        self.sku = sku
+        self.seller = dictToClass(seller, Seller)
+        self.eligible_region = eligible_region
+        self.product_url = product_url
+        self.octopart_rfq_url = octopart_rfq_url
+        self.prices = prices
+        self.in_stock_quantity = in_stock_quantity
+        self.on_order_quantity = self.on_order_quantity
+        self.on_order_eta = on_order_eta
+        self.factory_lead_days = factory_lead_days
+        self.factory_order_multiple = factory_order_multiple
+        self.order_multiple = order_multiple
+        self.moq = moq
+        self.packaging = packaging
+        self.is_authorized = is_authorized
+        self.last_updated = last_updated
 
 class Specvalue(object):
-    pass
+    def __init__(self, value, display_value, **kwargs):
+        args = copy.deepcopy(kwargs)
+        self.value = value
+        self.display_value = display_value
+        self.min_value = args.get('min_value')
+        self.max_value = args.get('max_value')
+        self.metadata = args.get('metadata')
+        self.attribution = args.get('attribution')
 
-class ReferenceDesign(object):
-    pass
+class ReferenceDesign(Asset):
+    def __init__(self, url, mimetype, **kwargs):
+        super(self.__class__, self).__init__(url, mimetype, **kwargs)
+        args = copy.deepcopy(kwargs)
+        self.title = args.get('title')
+        self.description = args.get('description')
+        self.attribution = args.get('attribution')
 
 class Seller(object):
-    pass
+    def __init__(self, uid, name, homepage_url, display_flag, has_ecommerce):
+        self.uid = uid
+        self.name = name
+        self.homepage_url = homepage_url
+        self.display_flag = display_flag
+        self.has_ecommerce = has_ecommerce
 
 class Source(object):
-    pass
+    def __init__(self, uid, name):
+        self.uid = uid
+        self.name = name
 
 class SpecMetadata(object):
-    pass
+    def __init__(self, key, name, datatype, unit):
+        self.key = key
+        self.name = name
+        if not inspect.isclass(datatype):
+            if datatype == 'string':
+                datatype = str
+            elif datatype == 'integer':
+                datatype = int
+            elif datatype == 'decimal':
+                datatype = float
+        self.datatype = datatype
+        self.unit = dictToClass(unit, UnitOfMeasurement)
 
 class UnitOfMeasurement(object):
-    pass
+    def __init__(self, name, symbol):
+        self.name = name
+        self.symbol = symbol
 
 # Response Schemas
 
 class PartsMatchRequest(object):
-    pass
+    def __init__(self, queries, exact_only):
+        self.queries = listToClass(queries, PartsMatchQuery)
+        self.exact_only = exact_only
 
 class PartsMatchQuery(object):
-    pass
+    def __init__(self, q, mpn, brand, sku, seller, mpn_or_sku, start, limit, reference):
+        self.q = q
+        self.mpn = mpn
+        self.brand = brand
+        self.sku = sku
+        self.seller = seller
+        self.mpn_or_sku = mpn_or_sku
+        self.start = start
+        self.limit = limit
+        self.reference = reference
 
 class PartsMatchResponse(object):
-    pass
+    def __init__(self, request, results, msec):
+        self.request = dictToClass(request, PartsMatchRequest)
+        self.results = listToClass(results, PartsMatchResult)
+        self.msec = msec
 
 class PartsMatchResult(object):
-    pass
+    def __init__(self, items, hits, **kwargs):
+        args = copy.deepcopy(kwargs)
+        self.items = listToClass(items, Part)
+        self.hits = hits
+        self.reference = args.get('reference')
+        self.error = args.get('error')
 
 class SearchRequest(object):
-    pass
+    def __init__(self, q, start, limit, sortby, **kwargs):
+        args = copy.deepcopy(kwargs)
+        self.q = q
+        self.start = start
+        self.limit = limit
+        self.sortby = sortby
+        self.filter = args.get('filter')
+        self.facet = args.get('facet')
+        self.stats = args.get('stats')
 
 class SearchResponse(object):
-    pass
+    def __init__(self, request, results, hits, msec, **kwargs):
+        args = copy.deepcopy(kwargs)
+        self.request = dictToClass(request, SearchRequest)
+        self.results = listToClass(results, SearchResult)
+        self.hits = hits
+        self.msec = msec
+        self.facet_results = listToClass(args.get('facet_results'), SearchFacetResult)
+        self.stats_result = listToClass(args.get('stats_results'), SearchStatsResult)
+        self.spec_metadata = args.get('spec_metadata')
 
 class SearchResult(object):
-    pass
+    def __init__(self, item):
+        self.item = dictToClass(item, Brand)
 
 class SearchFacetResult(object):
-    pass
+    def __init__(self, facets, missing, spec_drilldown_rank):
+        self.facets = facets
+        self.missing = missing
+        self.spec_drilldown_rank = spec_drilldown_rank
 
 class SearchStatsResult(object):
-    pass
+    def __init__(self, min, max, mean, stddev, count, missing, spec_drilldown_rank):
+        self.min = min
+        self.max = max
+        self.mean = mean
+        self.stddev = stddev
+        self.count = count
+        self.missing = missing
+        self.spec_drilldown_rank = spec_drilldown_rank
 
+# Error schemas
+
+class ClientErrorResponse(object):
+    def __init__(self, message):
+        self.message = message
+
+class ServerErrorResponse(object):
+    def __init__(self, message):
+        self.message = message
 
 ''' Octopart API proxy '''
 
