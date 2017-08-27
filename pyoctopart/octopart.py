@@ -142,10 +142,9 @@ class Asset(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.url))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.url), ': ', self.mimetype, ' (', self.metadata, ')'))
+        return '%s mimetype %s @ %s' % (self.__class__.__name__,
+                self.mimetype, self.url)
 
 class Attribution(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-attribution '''
@@ -190,10 +189,9 @@ class Attribution(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.sources))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.sources), ': ', self.first_acquired))
+        return '%s with %d sources @ %s' % (self.__class__.__name__,
+                len(self.sources), self.first_acquired)
 
 class Brand(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-brand '''
@@ -244,10 +242,9 @@ class Brand(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.uid))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join(('Brand ', str(self.uid), ': ', self.name,
-            ' (', self.homepage_url, ')'))
+        return '%s %s (%s) @ %s' % (self.__class__.__name__,
+                self.name, self.uid, self.homepage_url)
 
 class BrokerListing(object):
     '''
@@ -300,18 +297,16 @@ class BrokerListing(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.seller))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.seller), ': ', str(self.listing_url), ' ',
-            str(self.octopart_rfq_url)))
+        return '%s %s @ %s' % (self.__class__.__name__,
+                str(self.seller), self.listing_url)
 
 class CADModel(Asset):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-cadmodel '''
     def __init__(self, url, mimetype, **kwargs):
         super(self.__class__, self).__init__(url, mimetype, **kwargs)
         args = copy.deepcopy(kwargs)
-        self.attribution = args.get('attribution')
+        self.attribution = dict_to_class(args.get('attribution'), Attribution)
 
     @classmethod
     def new_from_dict(cls, new_dict):
@@ -357,11 +352,8 @@ class CADModel(Asset):
     def __hash__(self):
         return (hash(self.__class__), hash(self.url))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.url), ': ', str(self.mimetype), ' ',
-            str(self.attribution)))
+        return super(self.__class__, self).__str__()
 
 class Category(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-category '''
@@ -439,9 +431,10 @@ class Category(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.uid))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join(('Category ', str(self.uid), ': ', self.name))
+        return '%s %s (%s) containing %d parts, %d children' % (
+                self.__class__.__name__, self.name, self.uid, self.num_parts,
+                len(self.children_uids))
 
 class ComplianceDocument(Asset):
     '''
@@ -450,7 +443,7 @@ class ComplianceDocument(Asset):
     def __init__(self, url, mimetype, **kwargs):
         super(self.__class__, self).__init__(url, mimetype, **kwargs)
         args = copy.deepcopy(kwargs)
-        self.attribution = args.get('attribution')
+        self.attribution = dict_to_class(args.get('attribution'), Attribution)
         self.subtypes = args.get('subtypes', [])
 
     @classmethod
@@ -501,18 +494,15 @@ class ComplianceDocument(Asset):
     def __hash__(self):
         return (hash(self.__class__), hash(self.url))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.url), ': ', str(self.mimetype), ' ',
-            str(self.attribution)))
+        return super(self.__class__, self).__str__()
 
 class Datasheet(Asset):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-datasheet '''
     def __init__(self, url, mimetype, **kwargs):
         super(self.__class__, self).__init__(url, mimetype, **kwargs)
         args = copy.deepcopy(kwargs)
-        self.attribution = args.get('attribution')
+        self.attribution = dict_to_class(args.get('attribution'), Attribution)
 
     @classmethod
     def new_from_dict(cls, new_dict):
@@ -558,17 +548,14 @@ class Datasheet(Asset):
     def __hash__(self):
         return (hash(self.__class__), hash(self.url))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.url), ': ', str(self.mimetype), ' ',
-            str(self.attribution)))
+        return super(self.__class__, self).__str__()
 
 class Description(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-description'''
     def __init__(self, value, attribution):
         self.value = value
-        self.attribution = attribution
+        self.attribution = dict_to_class(attribution, Attribution)
 
     @classmethod
     def new_from_dict(cls, new_dict):
@@ -607,10 +594,9 @@ class Description(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.value))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.value), ': ', self.attribution))
+        return '%s %s (%s)' % (self.__class__.__name__,
+                self.value, str(self.attribution))
 
 class ExternaLinks(object):
     '''
@@ -663,11 +649,9 @@ class ExternaLinks(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.product_url))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.product_url), ': ', self.freesample_url,
-            ': ', self.evalkit_url))
+        return '%s %s,%s,%s' % (self.__class__.__name__,
+                self.product_url, self.freesample_url, self.evalkit_url)
 
 class ImageSet(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-imageset '''
@@ -677,7 +661,7 @@ class ImageSet(object):
         self.small_image = dict_to_class(small_image, Asset)
         self.medium_image = dict_to_class(medium_image, Asset)
         self.large_image = dict_to_class(large_image, Asset)
-        self.attribution = attribution
+        self.attribution = dict_to_class(attribution, Attribution)
         self.credit_string = credit_string
         self.credit_url = credit_url
 
@@ -692,44 +676,46 @@ class ImageSet(object):
 
     def equals_json(self, resource):
         """Checks the object for data equivalence to a JSON resource."""
+        ret = True
         if isinstance(resource, dict) and\
                 resource.get('__class__') == self.__class__.__name__:
             if self.swatch_image != resource.get('swatch_image'):
-                return False
+                ret = False
             if self.medium_image != resource.get('medium_image'):
-                return False
+                ret = False
             if self.large_image != resource.get('large_image'):
-                return False
+                ret = False
             if self.attribution != resource.get('attribution'):
-                return False
+                ret = False
             if self.credit_string != resource.get('credit_string'):
-                return False
+                ret = False
             if self.credit_url != resource.get('credit_url'):
-                return False
+                ret = False
         else:
-            return False
-        return True
+            ret = False
+        return ret
 
     def __eq__(self, other):
+        ret = True
         if isinstance(other, self.__class__):
             try:
                 if self.swatch_image != other.swatch_image:
-                    return False
+                    ret = False
                 if self.medium_image != other.medium_image:
-                    return False
+                    ret = False
                 if self.large_image != other.large_image:
-                    return False
+                    ret = False
                 if self.attribution != other.attribution:
-                    return False
+                    ret = False
                 if self.credit_string != other.credit_string:
-                    return False
+                    ret = False
                 if self.credit_url != other.credit_url:
-                    return False
+                    ret = False
             except AttributeError:
-                return False
+                ret = False
         else:
-            return False
-        return True
+            ret = False
+        return ret
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -737,11 +723,9 @@ class ImageSet(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.swatch_image))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.swatch_image), ': ', self.credit_string,
-            ': ', self.credit_url))
+        return '%s %s by %s' % (self.__class__.__name__,
+                self.swatch_image, self.credit_string)
 
 class Manufacturer(object):
     '''
@@ -794,11 +778,9 @@ class Manufacturer(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.uid))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.uid), ': ', self.name,
-            ': ', self.homepage_url))
+        return '%s %s (%s) @ %s' % (self.__class__.__name__,
+                self.name, self.uid, self.homepage_url)
 
 class Part(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-part '''
@@ -1043,10 +1025,9 @@ class Part(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.uid), hash(self.mpn))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join(('Part ', str(self.uid), ': ',
-            str(self.manufacturer), ' ', self.mpn))
+        return '%s %s %s (%s)' % (self.__class__.__name__,
+                self.manufacturer.name, self.mpn, self.uid)
 
 class PartOffer(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-partoffer '''
@@ -1173,11 +1154,26 @@ class PartOffer(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.sku))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.sku), ': ', str(self.seller),
-            ': ', self.last_updated))
+        # Attempt to find the maximum and minimum price
+        # To avoid making a smart decision about currency type, pick the first!
+        minval = -1.0
+        maxval = -1.0
+        unit = ""
+        if len(self.prices) > 0 and len(self.prices[self.prices.keys()[0]]) > 0:
+            unit = self.prices.keys()[0]
+            minval = self.prices[unit][-1]
+            maxval = self.prices[unit][0]
+
+        if minval == maxval:
+            return '%s from %s for %s: %f %s with %d avail, moq %d, lead %d'% (
+                    self.__class__.__name__, self.seller.name, self.sku,
+                    minval, unit, self.in_stock_quantity, self.moq,
+                    self.factory_lead_days)
+        return '%s from %s for %s: %f-%f %s with %d avail, moq %d, lead %d' % (
+                self.__class__.__name__, self.seller.name, self.sku,
+                minval, maxval, unit, self.in_stock_quantity, self.moq,
+                self.factory_lead_days)
 
 class SpecValue(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-specvalue '''
@@ -1188,7 +1184,7 @@ class SpecValue(object):
         self.min_value = args.get('min_value')
         self.max_value = args.get('max_value')
         self.metadata = args.get('metadata')
-        self.attribution = args.get('attribution')
+        self.attribution = dict_to_class(args.get('attribution'), Attribution)
 
     @classmethod
     def new_from_dict(cls, new_dict):
@@ -1248,11 +1244,13 @@ class SpecValue(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.display_value))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.display_value), ': ', str(self.min_value),
-            ': ', str(self.max_value)))
+        if self.min_value or self.max_value is None:
+            return '%s %s (%s)' % (self.__class__.__name__,
+                    self.display_value, str(self.attribution))
+        return '%s %s (%s-%s) (%s)' % (self.__class__.__name__,
+                self.display_value, self.min_value, self.max_value,
+                str(self.attribution))
 
 class ReferenceDesign(Asset):
     '''
@@ -1263,7 +1261,7 @@ class ReferenceDesign(Asset):
         args = copy.deepcopy(kwargs)
         self.title = args.get('title')
         self.description = args.get('description')
-        self.attribution = args.get('attribution')
+        self.attribution = dict_to_class(args.get('attribution'), Attribution)
 
     @classmethod
     def new_from_dict(cls, new_dict):
@@ -1276,36 +1274,38 @@ class ReferenceDesign(Asset):
 
     def equals_json(self, resource):
         """Checks the object for data equivalence to a JSON resource."""
+        ret = True
         if isinstance(resource, dict) and\
                 resource.get('__class__') == self.__class__.__name__:
             if self.url != resource.get('url'):
-                return False
+                ret = False
             if self.mimetype != resource.get('mimetype'):
-                return False
+                ret = False
             if self.attribution != resource.get('attribution'):
-                return False
+                ret = False
             if self.description != resource.get('description'):
-                return False
+                ret = False
         else:
-            return False
-        return True
+            ret = False
+        return ret
 
     def __eq__(self, other):
+        ret = True
         if isinstance(other, self.__class__):
             try:
                 if self.url != other.url:
-                    return False
+                    ret = False
                 if self.mimetype != other.mimetype:
-                    return False
+                    ret = False
                 if self.attribution != other.attribution:
-                    return False
+                    ret = False
                 if self.description != other.description:
-                    return False
+                    ret = False
             except AttributeError:
-                return False
+                ret = False
         else:
-            return False
-        return True
+            ret = False
+        return ret
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1313,11 +1313,8 @@ class ReferenceDesign(Asset):
     def __hash__(self):
         return (hash(self.__class__), hash(self.url))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.url), ': ', str(self.mimetype), ' ',
-            str(self.description)))
+        return super(self.__class__, self).__str__()
 
 class Seller(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-seller '''
@@ -1338,40 +1335,42 @@ class Seller(object):
 
     def equals_json(self, resource):
         """Checks the object for data equivalence to a JSON resource."""
+        ret = True
         if isinstance(resource, dict) and\
                 resource.get('__class__') == self.__class__.__name__:
             if self.uid != resource.get('uid'):
-                return False
+                ret = False
             if self.name != resource.get('name'):
-                return False
+                ret = False
             if self.homepage_url != resource.get('homepage_url'):
-                return False
+                ret = False
             if self.display_flag != resource.get('display_flag'):
-                return False
+                ret = False
             if self.has_ecommerce != resource.get('has_ecommerce'):
-                return False
+                ret = False
         else:
-            return False
-        return True
+            ret = False
+        return ret
 
     def __eq__(self, other):
+        ret = True
         if isinstance(other, self.__class__):
             try:
                 if self.uid != other.uid:
-                    return False
+                    ret = False
                 if self.name != other.name:
-                    return False
+                    ret = False
                 if self.homepage_url != other.homepage_url:
-                    return False
+                    ret = False
                 if self.display_flag != other.display_flag:
-                    return False
+                    ret = False
                 if self.has_ecommerce != other.has_ecommerce:
-                    return False
+                    ret = False
             except AttributeError:
-                return False
+                ret = False
         else:
-            return False
-        return True
+            ret = False
+        return ret
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -1379,11 +1378,9 @@ class Seller(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.uid))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.uid), ': ', self.name,
-            ': ', self.homepage_url))
+        return '%s %s (%s) @ %s' % (self.__class__.__name__,
+                self.name, self.uid, self.homepage_url)
 
 class Source(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-source '''
@@ -1428,10 +1425,9 @@ class Source(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.uid))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.uid), ': ', self.name))
+        return '%s %s (%s)' % (self.__class__.__name__,
+                self.name, self.uid)
 
 class SpecMetadata(object):
     '''
@@ -1498,10 +1494,9 @@ class SpecMetadata(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.key))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.key), ': ', self.name))
+        return '%s %s %s %s' % (self.__class__.__name__,
+                self.name, self.unit.name, str(self.datatype))
 
 class UnitOfMeasurement(object):
     '''
@@ -1548,10 +1543,9 @@ class UnitOfMeasurement(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.name))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.name), ': ', self.symbol))
+        return '%s %s (%s)' % (self.__class__.__name__,
+                self.symbol, self.name)
 
 # Response Schemas
 
@@ -1600,10 +1594,9 @@ class PartsMatchRequest(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.queries))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.queries), ': ', self.exact_only))
+        return '%s with %d queries, exact_only %s' % (self.__class__.__name__,
+                len(self.queries), str(self.exact_only))
 
 class PartsMatchQuery(object):
     '''
@@ -1693,11 +1686,27 @@ class PartsMatchQuery(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.q))
 
-    # TODO - review and possibly make this more sensible
     def __str__(self):
-        return ''.join((self.__class__.__name__, ' ',
-            str(self.q), ': ', self.mpn,
-            ': ', self.brand))
+        ret = ""
+        if self.reference is not None and self.reference is not "":
+            ret += " ref="+self.reference
+        if self.q is not None and self.q is not "":
+            ret += " query="+self.q
+        if self.mpn is not None and self.mpn is not "":
+            ret += " mpn="+self.mpn
+        if self.brand is not None and self.brand is not "":
+            ret += " brand="+self.brand
+        if self.sku is not None and self.sku is not "":
+            ret += " sku="+self.sku
+        if self.seller is not None and self.seller is not "":
+            ret += " seller="+self.seller
+        if self.mpn_or_sku is not None and self.mpn_or_sku is not "":
+            ret += " mpn_or_sku="+self.mpn_or_sku
+        if self.start is not None:
+            ret += " start="+str(self.start)
+        if self.limit is not None:
+            ret += " limit="+str(self.limit)
+        return '%s %s' % (self.__class__.__name__, ret)
 
 class PartsMatchResponse(object):
     '''
@@ -1903,7 +1912,7 @@ class SearchRequest(object):
 
     def __str__(self):
         return '%s: %s' % (
-                self.__class__.__name__, self.q)
+                self.__class__.__name__, str(self.q))
 
 class SearchResponse(object):
     '''
