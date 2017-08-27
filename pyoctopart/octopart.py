@@ -102,13 +102,13 @@ class Asset(object):
     def new_from_dict(cls, asset_dict):
         """Constructor for use with JSON resource dictionaries."""
         new_dict = copy.deepcopy(asset_dict)
-        uid = new_dict.pop('url')
-        name = new_dict.pop('mimetype')
-        new = cls(uid, name, **new_dict)
+        url = new_dict.pop('url')
+        mimetype = new_dict.pop('mimetype')
+        new = cls(url, mimetype, **new_dict)
         return new
 
     def equals_json(self, resource):
-        """Checks the object for data equivalence to a JSON Brand resource."""
+        """Checks the object for data equivalence to a JSON resource."""
         if isinstance(resource, dict) and\
                 resource.get('__class__') == self.__class__.__name__:
             if self.url != resource.get('url'):
@@ -142,6 +142,7 @@ class Asset(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.url))
 
+    # TODO - review and possibly make this more sensible
     def __str__(self):
         return ''.join((self.__class__.__name__, ' ',
             str(self.url), ': ', self.mimetype, ' (', self.metadata, ')'))
@@ -159,7 +160,7 @@ class Attribution(object):
         return new
 
     def equals_json(self, resource):
-        """Checks the object for data equivalence to a JSON Brand resource."""
+        """Checks the object for data equivalence to a JSON resource."""
         if isinstance(resource, dict) and\
                 resource.get('__class__') == self.__class__.__name__:
             if self.sources != resource.get('sources'):
@@ -189,6 +190,7 @@ class Attribution(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.sources))
 
+    # TODO - review and possibly make this more sensible
     def __str__(self):
         return ''.join((self.__class__.__name__, ' ',
             str(self.sources), ': ', self.first_acquired))
@@ -208,7 +210,7 @@ class Brand(object):
         return new
 
     def equals_json(self, resource):
-        """Checks the object for data equivalence to a JSON Brand resource."""
+        """Checks the object for data equivalence to a JSON resource."""
 
         if isinstance(resource, dict) and resource.get('__class__') == 'Brand':
             if self.uid != resource.get('uid'):
@@ -242,6 +244,7 @@ class Brand(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.uid))
 
+    # TODO - review and possibly make this more sensible
     def __str__(self):
         return ''.join(('Brand ', str(self.uid), ': ', self.name,
             ' (', self.homepage_url, ')'))
@@ -263,7 +266,7 @@ class BrokerListing(object):
         return new
 
     def equals_json(self, resource):
-        """Checks the object for data equivalence to a JSON Brand resource."""
+        """Checks the object for data equivalence to a JSON resource."""
         if isinstance(resource, dict) and\
                 resource.get('__class__') == self.__class__.__name__:
             if self.seller != resource.get('seller'):
@@ -297,6 +300,7 @@ class BrokerListing(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.seller))
 
+    # TODO - review and possibly make this more sensible
     def __str__(self):
         return ''.join((self.__class__.__name__, ' ',
             str(self.seller), ': ', str(self.listing_url), ' ',
@@ -309,6 +313,55 @@ class CADModel(Asset):
         args = copy.deepcopy(kwargs)
         self.attribution = args.get('attribution')
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new_dict = copy.deepcopy(new_dict)
+        url = new_dict.pop('url')
+        mimetype = new_dict.pop('mimetype')
+        new = cls(url, mimetype, **new_dict)
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.url != resource.get('url'):
+                return False
+            if self.mimetype != resource.get('mimetype'):
+                return False
+            if self.attribution != resource.get('attribution'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.url != other.url:
+                    return False
+                if self.mimetype != other.mimetype:
+                    return False
+                if self.attribution != other.attribution:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.url))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.url), ': ', str(self.mimetype), ' ',
+            str(self.attribution)))
 
 class Category(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-category '''
@@ -386,6 +439,7 @@ class Category(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.uid))
 
+    # TODO - review and possibly make this more sensible
     def __str__(self):
         return ''.join(('Category ', str(self.uid), ': ', self.name))
 
@@ -399,6 +453,60 @@ class ComplianceDocument(Asset):
         self.attribution = args.get('attribution')
         self.subtypes = args.get('subtypes', [])
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new_dict = copy.deepcopy(new_dict)
+        url = new_dict.pop('url')
+        mimetype = new_dict.pop('mimetype')
+        new = cls(url, mimetype, **new_dict)
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.url != resource.get('url'):
+                return False
+            if self.mimetype != resource.get('mimetype'):
+                return False
+            if self.attribution != resource.get('attribution'):
+                return False
+            if self.subtypes != resource.get('subtypes'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.url != other.url:
+                    return False
+                if self.mimetype != other.mimetype:
+                    return False
+                if self.attribution != other.attribution:
+                    return False
+                if self.subtypes != other.subtypes:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.url))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.url), ': ', str(self.mimetype), ' ',
+            str(self.attribution)))
+
 class Datasheet(Asset):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-datasheet '''
     def __init__(self, url, mimetype, **kwargs):
@@ -406,11 +514,103 @@ class Datasheet(Asset):
         args = copy.deepcopy(kwargs)
         self.attribution = args.get('attribution')
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new_dict = copy.deepcopy(new_dict)
+        url = new_dict.pop('url')
+        mimetype = new_dict.pop('mimetype')
+        new = cls(url, mimetype, **new_dict)
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.url != resource.get('url'):
+                return False
+            if self.mimetype != resource.get('mimetype'):
+                return False
+            if self.attribution != resource.get('attribution'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.url != other.url:
+                    return False
+                if self.mimetype != other.mimetype:
+                    return False
+                if self.attribution != other.attribution:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.url))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.url), ': ', str(self.mimetype), ' ',
+            str(self.attribution)))
+
 class Description(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-description'''
     def __init__(self, value, attribution):
         self.value = value
         self.attribution = attribution
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['value'], new_dict['attribution'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.value != resource.get('value'):
+                return False
+            if self.attribution != resource.get('attribution'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.value != other.value:
+                    return False
+                if self.attribution != other.attribution:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.value))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.value), ': ', self.attribution))
 
 class ExternaLinks(object):
     '''
@@ -420,6 +620,54 @@ class ExternaLinks(object):
         self.product_url = product_url
         self.freesample_url = freesample_url
         self.evalkit_url = evalkit_url
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['product_url'], new_dict['freesample_url'],
+                new_dict['evalkit_url'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.product_url != resource.get('product_url'):
+                return False
+            if self.freesample_url != resource.get('freesample_url'):
+                return False
+            if self.evalkit_url != resource.get('evalkit_url'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.product_url != other.product_url:
+                    return False
+                if self.freesample_url != other.freesample_url:
+                    return False
+                if self.evalkit_url != other.evalkit_url:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.product_url))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.product_url), ': ', self.freesample_url,
+            ': ', self.evalkit_url))
 
 class ImageSet(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-imageset '''
@@ -433,6 +681,68 @@ class ImageSet(object):
         self.credit_string = credit_string
         self.credit_url = credit_url
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['swatch_image'], new_dict['small_image'],
+                new_dict['medium_image'], new_dict['large_image'],
+                new_dict['attribution'], new_dict['credit_string'],
+                new_dict['credit_url'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.swatch_image != resource.get('swatch_image'):
+                return False
+            if self.medium_image != resource.get('medium_image'):
+                return False
+            if self.large_image != resource.get('large_image'):
+                return False
+            if self.attribution != resource.get('attribution'):
+                return False
+            if self.credit_string != resource.get('credit_string'):
+                return False
+            if self.credit_url != resource.get('credit_url'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.swatch_image != other.swatch_image:
+                    return False
+                if self.medium_image != other.medium_image:
+                    return False
+                if self.large_image != other.large_image:
+                    return False
+                if self.attribution != other.attribution:
+                    return False
+                if self.credit_string != other.credit_string:
+                    return False
+                if self.credit_url != other.credit_url:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.swatch_image))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.swatch_image), ': ', self.credit_string,
+            ': ', self.credit_url))
+
 class Manufacturer(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#object-schemas-manufacturer
@@ -441,6 +751,54 @@ class Manufacturer(object):
         self.uid = uid
         self.name = name
         self.homepage_url = homepage_url
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['uid'], new_dict['name'],
+                new_dict['homepage_url'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.uid != resource.get('uid'):
+                return False
+            if self.name != resource.get('name'):
+                return False
+            if self.homepage_url != resource.get('homepage_url'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.uid != other.uid:
+                    return False
+                if self.name != other.name:
+                    return False
+                if self.homepage_url != other.homepage_url:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.uid))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.uid), ': ', self.name,
+            ': ', self.homepage_url))
 
 class Part(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-part '''
@@ -685,6 +1043,7 @@ class Part(object):
     def __hash__(self):
         return (hash(self.__class__), hash(self.uid), hash(self.mpn))
 
+    # TODO - review and possibly make this more sensible
     def __str__(self):
         return ''.join(('Part ', str(self.uid), ': ',
             str(self.manufacturer), ' ', self.mpn))
@@ -712,6 +1071,114 @@ class PartOffer(object):
         self.is_authorized = is_authorized
         self.last_updated = last_updated
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['sku'], new_dict['seller'],
+                new_dict['eligible_region'], new_dict['product_url'],
+                new_dict['octopart_rfq_url'], new_dict['prices'],
+                new_dict['in_stock_quantity'], new_dict['on_order_quantity'],
+                new_dict['on_order_eta'], new_dict['factory_lead_days'],
+                new_dict['factory_order_multiple'], new_dict['order_multiple'],
+                new_dict['moq'], new_dict['packaging'],
+                new_dict['is_authorized'], new_dict['last_updated'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        ret = True
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.sku != resource.get('sku'):
+                ret = False
+            if self.seller != resource.get('seller'):
+                ret = False
+            if self.eligible_region != resource.get('eligible_region'):
+                ret = False
+            if self.product_url != resource.get('product_url'):
+                ret = False
+            if self.octopart_rfq_url != resource.get('octopart_rfq_url'):
+                ret = False
+            if self.prices != resource.get('prices'):
+                ret = False
+            if self.in_stock_quantity != resource.get('in_stock_quantity'):
+                ret = False
+            if self.on_order_quantity != resource.get('on_order_quantity'):
+                ret = False
+            if self.on_order_eta != resource.get('on_order_eta'):
+                ret = False
+            if self.factory_lead_days != resource.get('factory_lead_days'):
+                ret = False
+            if self.factory_order_multiple != resource.get('factory_order_multiple'):
+                ret = False
+            if self.order_multiple != resource.get('order_multiple'):
+                ret = False
+            if self.moq != resource.get('moq'):
+                ret = False
+            if self.packaging != resource.get('packaging'):
+                ret = False
+            if self.is_authorized != resource.get('is_authorized'):
+                ret = False
+            if self.last_updated != resource.get('last_updated'):
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __eq__(self, other):
+        ret = True
+        if isinstance(other, self.__class__):
+            try:
+                if self.sku != other.sku:
+                    ret = False
+                if self.seller != other.seller:
+                    ret = False
+                if self.eligible_region != other.eligible_region:
+                    ret = False
+                if self.product_url != other.product_url:
+                    ret = False
+                if self.octopart_rfq_url != other.octopart_rfq_url:
+                    ret = False
+                if self.prices != other.prices:
+                    ret = False
+                if self.in_stock_quantity != other.in_stock_quantity:
+                    ret = False
+                if self.on_order_quantity != other.on_order_quantity:
+                    ret = False
+                if self.on_order_eta != other.on_order_eta:
+                    ret = False
+                if self.factory_lead_days != other.factory_lead_days:
+                    ret = False
+                if self.factory_order_multiple != other.factory_order_multiple:
+                    ret = False
+                if self.order_multiple != other.order_multiple:
+                    ret = False
+                if self.moq != other.moq:
+                    ret = False
+                if self.packaging != other.packaging:
+                    ret = False
+                if self.is_authorized != other.is_authorized:
+                    ret = False
+                if self.last_updated != other.last_updated:
+                    ret = False
+            except AttributeError:
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.sku))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.sku), ': ', str(self.seller),
+            ': ', self.last_updated))
+
 class SpecValue(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-specvalue '''
     def __init__(self, value, display_value, **kwargs):
@@ -722,6 +1189,70 @@ class SpecValue(object):
         self.max_value = args.get('max_value')
         self.metadata = args.get('metadata')
         self.attribution = args.get('attribution')
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new_dict = copy.deepcopy(new_dict)
+        value = new_dict.pop('value')
+        display_value = new_dict.pop('display_value')
+        new = cls(value, display_value, **new_dict)
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        ret = True
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.value != resource.get('value'):
+                ret = False
+            if self.display_value != resource.get('display_value'):
+                ret = False
+            if self.min_value != resource.get('min_value'):
+                ret = False
+            if self.max_value != resource.get('max_value'):
+                ret = False
+            if self.metadata != resource.get('metadata'):
+                ret = False
+            if self.attribution != resource.get('attribution'):
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __eq__(self, other):
+        ret = True
+        if isinstance(other, self.__class__):
+            try:
+                if self.value != other.value:
+                    ret = False
+                if self.display_value != other.display_value:
+                    ret = False
+                if self.min_value != other.min_value:
+                    ret = False
+                if self.max_value != other.max_value:
+                    ret = False
+                if self.metadata != other.metadata:
+                    ret = False
+                if self.attribution != other.attribution:
+                    ret = False
+            except AttributeError:
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.display_value))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.display_value), ': ', str(self.min_value),
+            ': ', str(self.max_value)))
 
 class ReferenceDesign(Asset):
     '''
@@ -734,6 +1265,60 @@ class ReferenceDesign(Asset):
         self.description = args.get('description')
         self.attribution = args.get('attribution')
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new_dict = copy.deepcopy(new_dict)
+        url = new_dict.pop('url')
+        mimetype = new_dict.pop('mimetype')
+        new = cls(url, mimetype, **new_dict)
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.url != resource.get('url'):
+                return False
+            if self.mimetype != resource.get('mimetype'):
+                return False
+            if self.attribution != resource.get('attribution'):
+                return False
+            if self.description != resource.get('description'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.url != other.url:
+                    return False
+                if self.mimetype != other.mimetype:
+                    return False
+                if self.attribution != other.attribution:
+                    return False
+                if self.description != other.description:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.url))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.url), ': ', str(self.mimetype), ' ',
+            str(self.description)))
+
 class Seller(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-seller '''
     def __init__(self, uid, name, homepage_url, display_flag, has_ecommerce):
@@ -743,11 +1328,110 @@ class Seller(object):
         self.display_flag = display_flag
         self.has_ecommerce = has_ecommerce
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['uid'], new_dict['name'],
+                new_dict['homepage_url'], new_dict['display_flag'],
+                new_dict['has_ecommerce'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.uid != resource.get('uid'):
+                return False
+            if self.name != resource.get('name'):
+                return False
+            if self.homepage_url != resource.get('homepage_url'):
+                return False
+            if self.display_flag != resource.get('display_flag'):
+                return False
+            if self.has_ecommerce != resource.get('has_ecommerce'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.uid != other.uid:
+                    return False
+                if self.name != other.name:
+                    return False
+                if self.homepage_url != other.homepage_url:
+                    return False
+                if self.display_flag != other.display_flag:
+                    return False
+                if self.has_ecommerce != other.has_ecommerce:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.uid))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.uid), ': ', self.name,
+            ': ', self.homepage_url))
+
 class Source(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-source '''
     def __init__(self, uid, name):
         self.uid = uid
         self.name = name
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['uid'], new_dict['name'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.uid != resource.get('uid'):
+                return False
+            if self.name != resource.get('name'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.uid != other.uid:
+                    return False
+                if self.name != other.name:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.uid))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.uid), ': ', self.name))
 
 class SpecMetadata(object):
     '''
@@ -766,6 +1450,59 @@ class SpecMetadata(object):
         self.datatype = datatype
         self.unit = dict_to_class(unit, UnitOfMeasurement)
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['key'], new_dict['name'],
+                new_dict['datatype'], new_dict['unit'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        ret = True
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.key != resource.get('key'):
+                ret = False
+            if self.name != resource.get('name'):
+                ret = False
+            if self.datatype != resource.get('datatype'):
+                ret = False
+            if self.unit != resource.get('unit'):
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __eq__(self, other):
+        ret = True
+        if isinstance(other, self.__class__):
+            try:
+                if self.key != other.key:
+                    ret = False
+                if self.name != other.name:
+                    ret = False
+                if self.datatype != other.datatype:
+                    ret = False
+                if self.unit != other.unit:
+                    ret = False
+            except AttributeError:
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.key))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.key), ': ', self.name))
+
 class UnitOfMeasurement(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#object-schemas-unitofmeasurement
@@ -773,6 +1510,48 @@ class UnitOfMeasurement(object):
     def __init__(self, name, symbol):
         self.name = name
         self.symbol = symbol
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['name'], new_dict['symbol'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.name != resource.get('name'):
+                return False
+            if self.symbol != resource.get('symbol'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.name != other.name:
+                    return False
+                if self.symbol != other.symbol:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.name))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.name), ': ', self.symbol))
 
 # Response Schemas
 
@@ -784,11 +1563,55 @@ class PartsMatchRequest(object):
         self.queries = list_to_class(queries, PartsMatchQuery)
         self.exact_only = exact_only
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['queries'], new_dict['exact_only'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.queries != resource.get('queries'):
+                return False
+            if self.exact_only != resource.get('exact_only'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.queries != other.queries:
+                    return False
+                if self.exact_only != other.exact_only:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.queries))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.queries), ': ', self.exact_only))
+
 class PartsMatchQuery(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-partsmatchquery
     '''
-    def __init__(self, q, mpn, brand, sku, seller, mpn_or_sku, start, limit, reference):
+    # pylint: disable=invalid-name
+    def __init__(self, q, mpn, brand, sku, seller, mpn_or_sku,
+            start, limit, reference):
         self.q = q
         self.mpn = mpn
         self.brand = brand
@@ -799,6 +1622,83 @@ class PartsMatchQuery(object):
         self.limit = limit
         self.reference = reference
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['q'], new_dict['mpn'],
+                new_dict['brand'], new_dict['sku'],
+                new_dict['seller'], new_dict['mpn_or_sku'],
+                new_dict['start'], new_dict['limit'],
+                new_dict['reference'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        ret = True
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.q != resource.get('q'):
+                ret = False
+            if self.mpn != resource.get('mpn'):
+                ret = False
+            if self.brand != resource.get('brand'):
+                ret = False
+            if self.sku != resource.get('sku'):
+                ret = False
+            if self.seller != resource.get('seller'):
+                ret = False
+            if self.mpn_or_sku != resource.get('mpn_or_sku'):
+                ret = False
+            if self.start != resource.get('start'):
+                ret = False
+            if self.limit != resource.get('limit'):
+                ret = False
+            if self.reference != resource.get('reference'):
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __eq__(self, other):
+        ret = True
+        if isinstance(other, self.__class__):
+            try:
+                if self.q != other.q:
+                    ret = False
+                if self.mpn != other.mpn:
+                    ret = False
+                if self.brand != other.brand:
+                    ret = False
+                if self.sku != other.sku:
+                    ret = False
+                if self.seller != other.seller:
+                    ret = False
+                if self.mpn_or_sku != other.mpn_or_sku:
+                    ret = False
+                if self.start != other.start:
+                    ret = False
+                if self.limit != other.limit:
+                    ret = False
+                if self.reference != other.reference:
+                    ret = False
+            except AttributeError:
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.q))
+
+    # TODO - review and possibly make this more sensible
+    def __str__(self):
+        return ''.join((self.__class__.__name__, ' ',
+            str(self.q), ': ', self.mpn,
+            ': ', self.brand))
+
 class PartsMatchResponse(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-partsmatchresponse
@@ -807,6 +1707,52 @@ class PartsMatchResponse(object):
         self.request = dict_to_class(request, PartsMatchRequest)
         self.results = list_to_class(results, PartsMatchResult)
         self.msec = msec
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['request'], new_dict['results'],
+                new_dict['msec'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.request != resource.get('request'):
+                return False
+            if self.results != resource.get('results'):
+                return False
+            if self.msec != resource.get('msec'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.request != other.request:
+                    return False
+                if self.results != other.results:
+                    return False
+                if self.msec != other.msec:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.request))
+
+    def __str__(self):
+        return '%s completed in %d ms, %d results' % (
+                self.__class__.__name__, self.msec, len(self.results))
 
 class PartsMatchResult(object):
     '''
@@ -819,10 +1765,68 @@ class PartsMatchResult(object):
         self.reference = args.get('reference')
         self.error = args.get('error')
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new_dict = copy.deepcopy(new_dict)
+        items = new_dict.pop('items')
+        hits = new_dict.pop('hits')
+        new = cls(items, hits, **new_dict)
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        ret = True
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.items != resource.get('items'):
+                ret = False
+            if self.hits != resource.get('hits'):
+                ret = False
+            if self.reference != resource.get('reference'):
+                ret = False
+            if self.error != resource.get('error'):
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __eq__(self, other):
+        ret = True
+        if isinstance(other, self.__class__):
+            try:
+                if self.items != other.items:
+                    ret = False
+                if self.hits != other.hits:
+                    ret = False
+                if self.reference != other.reference:
+                    ret = False
+                if self.error != other.error:
+                    ret = False
+            except AttributeError:
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.items))
+
+    def __str__(self):
+        if self.error is not None:
+            return '%s containing %d items' % (
+                    self.__class__.__name__, self.hits)
+        return '%s error %s' % (
+                self.__class__.__name__, self.error)
+
 class SearchRequest(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-searchrequest
     '''
+    # pylint: disable=invalid-name
     def __init__(self, q, start, limit, sortby, **kwargs):
         args = copy.deepcopy(kwargs)
         self.q = q
@@ -832,6 +1836,74 @@ class SearchRequest(object):
         self.filter = args.get('filter')
         self.facet = args.get('facet')
         self.stats = args.get('stats')
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new_dict = copy.deepcopy(new_dict)
+        q = new_dict.pop('q')
+        start = new_dict.pop('start')
+        limit = new_dict.pop('limit')
+        sortby = new_dict.pop('sortby')
+        new = cls(q, start, limit, sortby, **new_dict)
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        ret = True
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.q != resource.get('q'):
+                ret = False
+            if self.start != resource.get('start'):
+                ret = False
+            if self.limit != resource.get('limit'):
+                ret = False
+            if self.sortby != resource.get('sortby'):
+                ret = False
+            if self.filter != resource.get('filter'):
+                ret = False
+            if self.facet != resource.get('facet'):
+                ret = False
+            if self.stats != resource.get('stats'):
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __eq__(self, other):
+        ret = True
+        if isinstance(other, self.__class__):
+            try:
+                if self.q != other.q:
+                    ret = False
+                if self.start != other.start:
+                    ret = False
+                if self.limit != other.limit:
+                    ret = False
+                if self.sortby != other.sortby:
+                    ret = False
+                if self.filter != other.filter:
+                    ret = False
+                if self.facet != other.facet:
+                    ret = False
+                if self.stats != other.stats:
+                    ret = False
+            except AttributeError:
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.q))
+
+    def __str__(self):
+        return '%s: %s' % (
+                self.__class__.__name__, self.q)
 
 class SearchResponse(object):
     '''
@@ -843,9 +1915,79 @@ class SearchResponse(object):
         self.results = list_to_class(results, SearchResult)
         self.hits = hits
         self.msec = msec
-        self.facet_results = list_to_class(args.get('facet_results'), SearchFacetResult)
-        self.stats_result = list_to_class(args.get('stats_results'), SearchStatsResult)
+        self.facet_results = list_to_class(
+                args.get('facet_results'), SearchFacetResult)
+        self.stats_results = list_to_class(
+                args.get('stats_results'), SearchStatsResult)
         self.spec_metadata = args.get('spec_metadata')
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new_dict = copy.deepcopy(new_dict)
+        request = new_dict.pop('request')
+        results = new_dict.pop('results')
+        hits = new_dict.pop('hits')
+        msec = new_dict.pop('msec')
+        new = cls(request, results, hits, msec, **new_dict)
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        ret = True
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.request != resource.get('request'):
+                ret = False
+            if self.results != resource.get('results'):
+                ret = False
+            if self.hits != resource.get('hits'):
+                ret = False
+            if self.msec != resource.get('msec'):
+                ret = False
+            if self.facet_results != resource.get('facet_results'):
+                ret = False
+            if self.stats_results != resource.get('stats_results'):
+                ret = False
+            if self.spec_metadata != resource.get('spec_metadata'):
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __eq__(self, other):
+        ret = True
+        if isinstance(other, self.__class__):
+            try:
+                if self.request != other.request:
+                    ret = False
+                if self.results != other.results:
+                    ret = False
+                if self.hits != other.hits:
+                    ret = False
+                if self.msec != other.msec:
+                    ret = False
+                if self.facet_results != other.facet_results:
+                    ret = False
+                if self.stats_results != other.stats_results:
+                    ret = False
+                if self.spec_metadata != other.spec_metadata:
+                    ret = False
+            except AttributeError:
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.request))
+
+    def __str__(self):
+        return '%s completed in %d ms, %d hits' % (
+                self.__class__.__name__, self.msec, self.hits)
 
 class SearchResult(object):
     '''
@@ -853,6 +1995,43 @@ class SearchResult(object):
     '''
     def __init__(self, item):
         self.item = dict_to_class(item, Brand)
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['item'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.item != resource.get('item'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.item != other.item:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.item))
+
+    def __str__(self):
+        return self.item.__str__()
+
 
 class SearchFacetResult(object):
     '''
@@ -862,6 +2041,53 @@ class SearchFacetResult(object):
         self.facets = facets
         self.missing = missing
         self.spec_drilldown_rank = spec_drilldown_rank
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['facets'], new_dict['missing'],
+                new_dict['spec_drilldown_rank'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.facets != resource.get('facets'):
+                return False
+            if self.missing != resource.get('missing'):
+                return False
+            if self.spec_drilldown_rank != resource.get('spec_drilldown_rank'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.facets != other.facets:
+                    return False
+                if self.missing != other.missing:
+                    return False
+                if self.spec_drilldown_rank != other.spec_drilldown_rank:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.facets))
+
+    def __str__(self):
+        return '%s with %d facets, %d missing, rank %d' % (
+                self.__class__.__name__, len(self.facets), self.missing,
+                self.spec_drilldown_rank)
 
 class SearchStatsResult(object):
     '''
@@ -876,6 +2102,73 @@ class SearchStatsResult(object):
         self.missing = missing
         self.spec_drilldown_rank = spec_drilldown_rank
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['min'], new_dict['max'],
+                new_dict['mean'], new_dict['stddev'],
+                new_dict['count'], new_dict['missing'],
+                new_dict['spec_drilldown_rank'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        ret = True
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.min != resource.get('min'):
+                ret = False
+            if self.max != resource.get('max'):
+                ret = False
+            if self.mean != resource.get('mean'):
+                ret = False
+            if self.stddev != resource.get('stddev'):
+                ret = False
+            if self.count != resource.get('count'):
+                ret = False
+            if self.missing != resource.get('missing'):
+                ret = False
+            if self.spec_drilldown_rank != resource.get('spec_drilldown_rank'):
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __eq__(self, other):
+        ret = True
+        if isinstance(other, self.__class__):
+            try:
+                if self.min != other.min:
+                    ret = False
+                if self.max != other.max:
+                    ret = False
+                if self.mean != other.mean:
+                    ret = False
+                if self.stddev != other.stddev:
+                    ret = False
+                if self.count != other.count:
+                    ret = False
+                if self.missing != other.missing:
+                    ret = False
+                if self.spec_drilldown_rank != other.spec_drilldown_rank:
+                    ret = False
+            except AttributeError:
+                ret = False
+        else:
+            ret = False
+        return ret
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.min))
+
+    def __str__(self):
+        return '%s %d/%d results: mean %d, min %d, max %d, stddev %d' % (
+                self.__class__.__name__, self.count, self.count+self.missing,
+                self.mean, self.min, self.max, self.stddev)
+
 # Error schemas
 
 class ClientErrorResponse(object):
@@ -885,12 +2178,84 @@ class ClientErrorResponse(object):
     def __init__(self, message):
         self.message = message
 
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['message'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.message != resource.get('message'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.message != other.message:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.message))
+
+    def __str__(self):
+        return "%s: %s" % (self.__class__.__name__, self.message)
+
 class ServerErrorResponse(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#error-schemas-servererrorresponse
     '''
     def __init__(self, message):
         self.message = message
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new = cls(new_dict['message'])
+        return new
+
+    def equals_json(self, resource):
+        """Checks the object for data equivalence to a JSON resource."""
+        if isinstance(resource, dict) and\
+                resource.get('__class__') == self.__class__.__name__:
+            if self.message != resource.get('message'):
+                return False
+        else:
+            return False
+        return True
+
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            try:
+                if self.message != other.message:
+                    return False
+            except AttributeError:
+                return False
+        else:
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return (hash(self.__class__), hash(self.message))
+
+    def __str__(self):
+        return "%s: %s" % (self.__class__.__name__, self.message)
 
 # Octopart API proxy '''
 
