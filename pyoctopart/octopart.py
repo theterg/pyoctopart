@@ -140,7 +140,10 @@ class Asset(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.url))
+        return hash((self.__class__, self.url, self.mimetype, self.metadata))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s mimetype %s @ %s' % (self.__class__.__name__,
@@ -187,7 +190,10 @@ class Attribution(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.sources))
+        return hash((self.__class__, self.sources, self.first_acquired))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s with %d sources @ %s' % (self.__class__.__name__,
@@ -240,7 +246,10 @@ class Brand(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.uid))
+        return hash((self.__class__, self.uid, self.name, self.homepage_url))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s (%s) @ %s' % (self.__class__.__name__,
@@ -295,7 +304,11 @@ class BrokerListing(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.seller))
+        return hash((self.__class__, self.seller, self.listing_url,
+            self.octopart_rfq_url))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s @ %s' % (self.__class__.__name__,
@@ -350,7 +363,10 @@ class CADModel(Asset):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.url))
+        return hash((self.__class__, self.url, self.mimetype, self.attribution))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return super(self.__class__, self).__str__()
@@ -369,6 +385,21 @@ class Category(object):
         self.ancestor_names = ancestor_names
         self.num_parts = num_parts
         self.imagesets = args.get('imagesets', [])
+
+    @classmethod
+    def new_from_dict(cls, new_dict):
+        """Constructor for use with JSON resource dictionaries."""
+        new_dict = copy.deepcopy(new_dict)
+        uid = new_dict.pop('uid')
+        name = new_dict.pop('name')
+        parent_uid = new_dict.pop('parent_uid')
+        children_uids = new_dict.pop('children_uids')
+        ancestor_uids = new_dict.pop('ancestor_uids')
+        ancestor_names = new_dict.pop('ancestor_names')
+        num_parts = new_dict.pop('num_parts')
+        new = cls(uid, name, parent_uid, children_uids, ancestor_uids,
+                ancestor_names, num_parts, **new_dict)
+        return new
 
     def equals_json(self, resource):
         """Checks the object for data equivalence to a JSON Category resource"""
@@ -429,7 +460,12 @@ class Category(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.uid))
+        return hash((self.__class__, self.uid, self.name, self.parent_uid,
+            self.children_uids, self.ancestor_uids, self.ancestor_names,
+            self.num_parts, self.imagesets))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s (%s) containing %d parts, %d children' % (
@@ -457,42 +493,48 @@ class ComplianceDocument(Asset):
 
     def equals_json(self, resource):
         """Checks the object for data equivalence to a JSON resource."""
+        ret = True
         if isinstance(resource, dict) and\
                 resource.get('__class__') == self.__class__.__name__:
             if self.url != resource.get('url'):
-                return False
+                ret = False
             if self.mimetype != resource.get('mimetype'):
-                return False
+                ret = False
             if self.attribution != resource.get('attribution'):
-                return False
+                ret = False
             if self.subtypes != resource.get('subtypes'):
-                return False
+                ret = False
         else:
-            return False
-        return True
+            ret = False
+        return ret
 
     def __eq__(self, other):
+        ret = True
         if isinstance(other, self.__class__):
             try:
                 if self.url != other.url:
-                    return False
+                    ret = False
                 if self.mimetype != other.mimetype:
-                    return False
+                    ret = False
                 if self.attribution != other.attribution:
-                    return False
+                    ret = False
                 if self.subtypes != other.subtypes:
-                    return False
+                    ret = False
             except AttributeError:
-                return False
+                ret = False
         else:
-            return False
-        return True
+            ret = False
+        return ret
 
     def __ne__(self, other):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.url))
+        return hash((self.__class__, self.url, self.mimetype, self.attribution,
+            self.subtypes))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return super(self.__class__, self).__str__()
@@ -546,7 +588,10 @@ class Datasheet(Asset):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.url))
+        return hash((self.__class__, self.url, self.mimetype, self.attribution))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return super(self.__class__, self).__str__()
@@ -592,7 +637,10 @@ class Description(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.value))
+        return hash((self.__class__, self.value, self.attribution))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s (%s)' % (self.__class__.__name__,
@@ -647,7 +695,11 @@ class ExternaLinks(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.product_url))
+        return hash((self.__class__, self.product_url, self.freesample_url,
+            self.evalkit_url))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s,%s,%s' % (self.__class__.__name__,
@@ -721,7 +773,12 @@ class ImageSet(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.swatch_image))
+        return hash((self.__class__, self.swatch_image, self.medium_image,
+            self.large_image, self.attribution, self.credit_string,
+            self.credit_url))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s by %s' % (self.__class__.__name__,
@@ -776,7 +833,10 @@ class Manufacturer(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.uid))
+        return hash((self.__class__, self.uid, self.name, self.homepage_url))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s (%s) @ %s' % (self.__class__.__name__,
@@ -1023,7 +1083,14 @@ class Part(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.uid), hash(self.mpn))
+        return hash((self.__class__, self.uid, self.mpn, self.manufacturer,
+            self.brand, self.external_links, self.offers, self.broker_listings,
+            self.short_description, self.descriptions, self.imagesets,
+            self.datasheets, self.compliance_documents, self.reference_designs,
+            self.cad_models, self.specs, self.category_uids))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s %s (%s)' % (self.__class__.__name__,
@@ -1152,7 +1219,15 @@ class PartOffer(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.sku))
+        return hash((self.__class__, self.sku, self.seller,
+            self.eligible_region, self.product_url, self.octopart_rfq_url,
+            self.prices, self.in_stock_quantity, self.on_order_quantity,
+            self.on_order_eta, self.factory_lead_days,
+            self.factory_order_multiple, self.order_multiple, self.moq,
+            self.packaging, self.is_authorized, self.last_updated))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         # Attempt to find the maximum and minimum price
@@ -1242,7 +1317,11 @@ class SpecValue(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.display_value))
+        return hash((self.__class__, self.value, self.display_value,
+            self.min_value, self.max_value, self.metadata, self.attribution))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         if self.min_value or self.max_value is None:
@@ -1311,7 +1390,11 @@ class ReferenceDesign(Asset):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.url))
+        return hash((self.__class__, self.url, self.mimetype, self.attribution,
+            self.description))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return super(self.__class__, self).__str__()
@@ -1376,7 +1459,11 @@ class Seller(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.uid))
+        return hash((self.__class__, self.uid, self.name, self.homepage_url,
+            self.display_flag, self.has_ecommerce))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s (%s) @ %s' % (self.__class__.__name__,
@@ -1423,7 +1510,10 @@ class Source(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.uid))
+        return hash((self.__class__, self.uid, self.name))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s (%s)' % (self.__class__.__name__,
@@ -1492,7 +1582,11 @@ class SpecMetadata(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.key))
+        return hash((self.__class__, self.key, self.name, self.datatype,
+            self.unit))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s %s %s' % (self.__class__.__name__,
@@ -1541,7 +1635,10 @@ class UnitOfMeasurement(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.name))
+        return hash((self.__class__, self.name, self.symbol))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %s (%s)' % (self.__class__.__name__,
@@ -1592,7 +1689,10 @@ class PartsMatchRequest(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.queries))
+        return hash((self.__class__, self.queries, self.exact_only))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s with %d queries, exact_only %s' % (self.__class__.__name__,
@@ -1684,7 +1784,12 @@ class PartsMatchQuery(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.q))
+        return hash((self.__class__, self.q, self.mpn, self.brand, self.sku,
+            self.seller, self.mpn_or_sku, self.start, self.limit,
+            self.reference))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         ret = ""
@@ -1757,7 +1862,10 @@ class PartsMatchResponse(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.request))
+        return hash((self.__class__, self.request, self.results, self.msec))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s completed in %d ms, %d results' % (
@@ -1822,7 +1930,11 @@ class PartsMatchResult(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.items))
+        return hash((self.__class__, self.items, self.hits, self.reference,
+            self.error))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         if self.error is not None:
@@ -1908,7 +2020,11 @@ class SearchRequest(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.q))
+        return hash((self.__class__, self.q, self.start, self.limit,
+            self.sortby, self.filter, self.facet, self.stats))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s: %s' % (
@@ -1992,7 +2108,12 @@ class SearchResponse(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.request))
+        return hash((self.__class__, self.request, self.results, self.hits,
+            self.msec, self.facet_results, self.stats_results,
+            self.spec_metadata))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s completed in %d ms, %d hits' % (
@@ -2036,7 +2157,10 @@ class SearchResult(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.item))
+        return hash((self.__class__, self.item))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return self.item.__str__()
@@ -2091,7 +2215,11 @@ class SearchFacetResult(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.facets))
+        return hash((self.__class__, self.facets, self.missing,
+            self.spec_drilldown_rank))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s with %d facets, %d missing, rank %d' % (
@@ -2171,7 +2299,11 @@ class SearchStatsResult(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.min))
+        return hash((self.__class__, self.min, self.max, self.mean,
+            self.stddev, self.count, self.missing, self.spec_drilldown_rank))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return '%s %d/%d results: mean %d, min %d, max %d, stddev %d' % (
@@ -2218,7 +2350,10 @@ class ClientErrorResponse(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.message))
+        return hash((self.__class__, self.message))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return "%s: %s" % (self.__class__.__name__, self.message)
@@ -2261,7 +2396,10 @@ class ServerErrorResponse(object):
         return not self.__eq__(other)
 
     def __hash__(self):
-        return (hash(self.__class__), hash(self.message))
+        return hash((self.__class__, self.message))
+
+    def __setattr__(self, name, value):
+        raise AttributeError("This object is Immutable")
 
     def __str__(self):
         return "%s: %s" % (self.__class__.__name__, self.message)
