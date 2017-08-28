@@ -19,7 +19,7 @@ just do:
 and it'll be available from your python REPL:
 
     % python
-    >>> from pyoctopart.octopart import Octopart
+    >>> from pyoctopart.octopart import Octopart, SearchResponse
     >>> o = Octopart.api(apikey="yourapikey")
     
 As a short example, this will search for all parts that match MPN SN74S74N and will fully recreate a structure of APIv3 objects (WIP):
