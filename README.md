@@ -2,11 +2,11 @@
 
 A simple Python client frontend to the Octopart public REST API.
 
-For detailed API documentation, refer to the [Octopart APIv2 documentation](https://octopart.com/api/docs/v2/rest-api)
+For detailed API documentation, refer to the [Octopart APIv3 documentation](https://octopart.com/api/docs/v3/rest-api)
 
-This is a fork of [Joe Baker](https://github.com/jbaker0428/Python-Octopart-API)'s work, and this fork is *incompatible* with Python 2 distributions!
+This is a fork of [guyzmo](https://github.com/guyzmo/pyoctopart)'s work, which is in turn a fork of [Joe Baker](https://github.com/jbaker0428/Python-Octopart-API)'s work.
 
-You'll find the sources of this project over https://github.com/guyzmo/pyoctopart
+This fork should be compatible with both python 2 and python 3, at least that is the aim.
 
 ## Usage
 
@@ -14,13 +14,36 @@ You'll find the sources of this project over https://github.com/guyzmo/pyoctopar
 
 just do:
 
-    python3 setup.py install
+    python setup.py install
 
 and it'll be available from your python REPL:
 
-    % python3
+    % python
     >>> from pyoctopart.octopart import Octopart
     >>> o = Octopart.api(apikey="yourapikey")
+    
+As a short example, this will search for all parts that match MPN SN74S74N and will fully recreate a structure of APIv3 objects (WIP):
+
+    >>> rawoutput, _ = o.parts_search('SN74S74N')
+    >>> response = SearchResponse.new_from_dict(rawoutput)
+    >>> for result in response.results:
+    >>> print str(result)
+    >>>     for offer in result.item.offers:
+    >>>         print "\t"+str(offer)
+    
+    Part Texas Instruments SN74S74NSR (721abb1d3046addd)
+        PartOffer from Digi-Key for SN74S74NSR-ND: 0.742500 USD with 0 avail
+        PartOffer from Avnet for SN74S74NSR: 0.690090-0.798260 USD with 0 avail
+        PartOffer from Quest for SN74S74NSR: -1.000000  with 0 avail
+    Part Texas Instruments SN74S74NS (88de411ca1685719)
+        PartOffer from Rochester Electronics for SN74S74NS: 1.470000-1.810000 USD with 7900 avail
+        PartOffer from Avnet for SN74S74NS: 1.254710-1.451380 USD with 0 avail
+    Part Texas Instruments SN74S74NSLE (46798f4fc68b99be)
+        PartOffer from Rochester Electronics for SN74S74NSLE: 0.250000-0.310000 USD with 1000 avail
+        PartOffer from Avnet for SN74S74NSLE: 0.426600-0.493470 USD with 0 avail
+    Part Texas Instruments SN74S74NSRG4 (4bbb82dd2598947c)
+    Part Texas Instruments SN74S74NSRE4 (3eacf7ab7857e16b)
+    Part Texas Instruments SN74S74NSL (2f72e68b83a4f0b5)
 
 when the lib will be considered stable enough, I'll upload it to [pipy](https://pypi.python.org/pypi?:action=pkg_edit&name=pyoctopart):
 
@@ -46,18 +69,9 @@ You can run regression tests using:
 
 ### API v3 conversion
 
-At the time being only three methods have been switched to the new API:
+All objects have been ported over the API v3 - Support for API v2 has been discontinuied.
 
-    parts_search()
-    parts_match()
-    parts_get()
-
-And the tests will need to be updated. Those methods are the only one being used
-in the [`pyparts`][1] project, though.
-
-[1]:https://github.com/guyzmo/pyparts
-
-### method/argument syntax (for API v3)
+### method/argument syntax
 
 A number of arguments in the v3 API are using syntax that are not compatible with
 python's syntax, such as `include[]=datasheets`. To enforce argument's type checking
@@ -122,35 +136,9 @@ As a reference, check the [include/show/hide directives sections of the manual][
 
 [0]:https://octopart.com/api/docs/v3/rest-api#include-directives
 
-### method/argument syntax (for API v2)
-
-There are a number of arguments in the Octopart API documentation which contain 
-periods in their names. When passing these arguments from Python, substitute an
-underscore for any periods.
-
-Similarly, substitute underscores for backslashes in method names.
-
-For example:
-
-    >>> o = Octopart()
-    >>> o.parts_get(1881614252472, optimize.hide_datasheets=True)
-    SyntaxError: keyword can't be an expression
-
-    Instead, pass the argument as:
-    >>> o.parts_get(1881614252472, optimize_hide_datasheets=True)
-
-The library will perform the translation internally.
-
-### Roadmap
-
- * [x] switch to python 3
- * [x] create buildout build
- * [x] use function annotations
- * [o] switch to v3 API
- * [ ] improve and fix tests
-
 ## Authors
 
+ * Forked by Andrew Tergis <theterg at gmail dot com>
  * Forked by Bernard `Guyzmo` Pratz <octopart at m0g.net>
  * Originally authored by Joe Baker <jbaker at alum.wpi.edu>
 
