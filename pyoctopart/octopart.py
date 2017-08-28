@@ -1195,18 +1195,16 @@ class PartOffer(object):
         unit = ""
         if len(self.prices) > 0 and len(self.prices[self.prices.keys()[0]]) > 0:
             unit = self.prices.keys()[0]
-            minval = self.prices[unit][-1]
-            maxval = self.prices[unit][0]
+            minval = float(self.prices[unit][-1][1])
+            maxval = float(self.prices[unit][0][1])
 
         if minval == maxval:
-            return '%s from %s for %s: %f %s with %d avail, moq %d, lead %d'% (
+            return '%s from %s for %s: %f %s with %d avail'% (
                     self.__class__.__name__, self.seller.name, self.sku,
-                    minval, unit, self.in_stock_quantity, self.moq,
-                    self.factory_lead_days)
-        return '%s from %s for %s: %f-%f %s with %d avail, moq %d, lead %d' % (
+                    minval, unit, self.in_stock_quantity)
+        return '%s from %s for %s: %f-%f %s with %d avail' % (
                 self.__class__.__name__, self.seller.name, self.sku,
-                minval, maxval, unit, self.in_stock_quantity, self.moq,
-                self.factory_lead_days)
+                minval, maxval, unit, self.in_stock_quantity)
 
 class SpecValue(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-specvalue '''
