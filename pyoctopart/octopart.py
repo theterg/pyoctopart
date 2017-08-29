@@ -31,6 +31,8 @@ import inspect
 
 from pprint import pprint
 
+from util import Curry, select, dict_to_class, list_to_class
+
 #from .exceptions import ArgumentMissingError
 #from .exceptions import ArgumentInvalidError
 from .exceptions import TypeArgumentError
@@ -49,43 +51,10 @@ __author__ = 'Joe Baker <jbaker at alum.wpi.edu>'
 __contributors__ = ['Bernard `Guyzmo` Pratz <pyoctopart at m0g dot net>',
                     'Andrew Tergis <theterg at gmail got com>']
 
-# Utility features
 
-class curry:
-    def __init__(self, fun, *args, **kwargs):
-        self.fun = fun
-        self.pending = args[:]
-        self.kwargs = kwargs.copy()
-
-    def __call__(self, *args, **kwargs):
-        if kwargs and self.kwargs:
-            kw_copy = self.kwargs.copy()
-            kw_copy.update(kwargs)
-        else:
-            kw_copy = kwargs or self.kwargs
-
-        return self.fun(*(self.pending + args), **kw_copy)
-
-def dict_to_class(obj, cls):
-    ''' Check if obj is an instance of cls, instantiate it otherwise '''
-    if not isinstance(obj, cls):
-        return cls.new_from_dict(obj)
-    return obj
-
-def list_to_class(objects, cls):
-    ''' Given a list of dicts, instantiate them each as cls '''
-    ret = []
-    for obj in objects:
-        obj = dict_to_class(obj, cls)
-        ret.append(obj)
-    return ret
-
-def select(param, d):
-    return {k: v for k, v in d.items() if param in k}
-
-select_incls=curry(select, 'include_')
-select_shows=curry(select, 'show_')
-select_hides=curry(select, 'hide_')
+select_incls = Curry(select, 'include_')
+select_shows = Curry(select, 'show_')
+select_hides = Curry(select, 'hide_')
 
 
 # Octopart Data maps
@@ -101,6 +70,9 @@ class Asset(object):
     @classmethod
     def new_from_dict(cls, asset_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if asset_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                asset_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(asset_dict)
         url = new_dict.pop('url')
         mimetype = new_dict.pop('mimetype')
@@ -155,6 +127,9 @@ class Attribution(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['sources'], new_dict['acquired'])
         return new
 
@@ -203,6 +178,9 @@ class Brand(object):
     @classmethod
     def new_from_dict(cls, brand_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if brand_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                brand_dict['__class__'], cls.__name__))
         new = cls(brand_dict['uid'], brand_dict['name'],
                 brand_dict['homepage_url'])
         return new
@@ -258,6 +236,9 @@ class BrokerListing(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['seller'], new_dict['listing_url'],
                 new_dict['octopart_rfq_url'])
         return new
@@ -312,6 +293,9 @@ class CADModel(Asset):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(new_dict)
         url = new_dict.pop('url')
         mimetype = new_dict.pop('mimetype')
@@ -374,6 +358,9 @@ class Category(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(new_dict)
         uid = new_dict.pop('uid')
         name = new_dict.pop('name')
@@ -467,6 +454,9 @@ class ComplianceDocument(Asset):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(new_dict)
         url = new_dict.pop('url')
         mimetype = new_dict.pop('mimetype')
@@ -528,6 +518,9 @@ class Datasheet(Asset):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(new_dict)
         url = new_dict.pop('url')
         mimetype = new_dict.pop('mimetype')
@@ -581,6 +574,9 @@ class Description(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['value'], new_dict['attribution'])
         return new
 
@@ -631,6 +627,9 @@ class ExternaLinks(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['product_url'], new_dict['freesample_url'],
                 new_dict['evalkit_url'])
         return new
@@ -690,6 +689,9 @@ class ImageSet(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['swatch_image'], new_dict['small_image'],
                 new_dict['medium_image'], new_dict['large_image'],
                 new_dict['attribution'], new_dict['credit_string'],
@@ -763,6 +765,9 @@ class Manufacturer(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['uid'], new_dict['name'],
                 new_dict['homepage_url'])
         return new
@@ -961,6 +966,9 @@ class Part(object):
     @classmethod
     def new_from_dict(cls, part_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if part_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                part_dict['__class__'], cls.__name__))
 
         copied_dict = part_dict.copy()
         uid = copied_dict.pop('uid')
@@ -1083,6 +1091,9 @@ class PartOffer(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['sku'], new_dict['seller'],
                 new_dict['eligible_region'], new_dict['product_url'],
                 new_dict['octopart_rfq_url'], new_dict['prices'],
@@ -1220,6 +1231,9 @@ class SpecValue(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(new_dict)
         value = new_dict.pop('value')
         display_value = new_dict.pop('display_value')
@@ -1298,6 +1312,9 @@ class ReferenceDesign(Asset):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(new_dict)
         url = new_dict.pop('url')
         mimetype = new_dict.pop('mimetype')
@@ -1361,6 +1378,9 @@ class Seller(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['uid'], new_dict['name'],
                 new_dict['homepage_url'], new_dict['display_flag'],
                 new_dict['has_ecommerce'])
@@ -1425,6 +1445,9 @@ class Source(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['uid'], new_dict['name'])
         return new
 
@@ -1483,6 +1506,9 @@ class SpecMetadata(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['key'], new_dict['name'],
                 new_dict['datatype'], new_dict['unit'])
         return new
@@ -1544,6 +1570,9 @@ class UnitOfMeasurement(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['name'], new_dict['symbol'])
         return new
 
@@ -1595,6 +1624,9 @@ class PartsMatchRequest(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['queries'], new_dict['exact_only'])
         return new
 
@@ -1653,6 +1685,9 @@ class PartsMatchQuery(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['q'], new_dict['mpn'],
                 new_dict['brand'], new_dict['sku'],
                 new_dict['seller'], new_dict['mpn_or_sku'],
@@ -1757,6 +1792,9 @@ class PartsMatchResponse(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['request'], new_dict['results'],
                 new_dict['msec'])
         return new
@@ -1814,6 +1852,9 @@ class PartsMatchResult(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(new_dict)
         items = new_dict.pop('items')
         hits = new_dict.pop('hits')
@@ -1887,6 +1928,9 @@ class SearchRequest(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(new_dict)
         q = new_dict.pop('q')
         start = new_dict.pop('start')
@@ -1975,6 +2019,9 @@ class SearchResponse(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new_dict = copy.deepcopy(new_dict)
         request = new_dict.pop('request')
         results = new_dict.pop('results')
@@ -2054,6 +2101,9 @@ class SearchResult(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['item'])
         return new
 
@@ -2100,6 +2150,9 @@ class SearchFacetResult(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['facets'], new_dict['missing'],
                 new_dict['spec_drilldown_rank'])
         return new
@@ -2161,6 +2214,9 @@ class SearchStatsResult(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['min'], new_dict['max'],
                 new_dict['mean'], new_dict['stddev'],
                 new_dict['count'], new_dict['missing'],
@@ -2238,6 +2294,9 @@ class ClientErrorResponse(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['message'])
         return new
 
@@ -2281,6 +2340,9 @@ class ServerErrorResponse(object):
     @classmethod
     def new_from_dict(cls, new_dict):
         """Constructor for use with JSON resource dictionaries."""
+        if new_dict['__class__'] != cls.__name__:
+            raise TypeArgumentError('Dict is for class %s, not %s' % (
+                new_dict['__class__'], cls.__name__))
         new = cls(new_dict['message'])
         return new
 
