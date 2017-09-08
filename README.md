@@ -24,8 +24,7 @@ and it'll be available from your python REPL:
     
 As a short example, this will search for all parts that match MPN SN74S74N and will fully recreate a structure of APIv3 objects (WIP):
 
-    >>> rawoutput, _ = o.parts_search('SN74S74N')
-    >>> response = SearchResponse.new_from_dict(rawoutput)
+    >>> response = o.parts_search('SN74S74N')
     >>> for result in response.results:
     >>> print str(result)
     >>>     for offer in result.item.offers:

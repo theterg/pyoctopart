@@ -23,7 +23,8 @@ limitations under the License.
 
 import copy
 import inspect
-from pyoctopart.util import Curry, select, dict_to_class, list_to_class
+from pyoctopart.util import Curry, select
+from pyoctopart.util import dict_to_class,list_to_class, api_object
 from .exceptions import TypeArgumentError
 
 
@@ -34,6 +35,7 @@ select_hides = Curry(select, 'hide_')
 
 # Octopart Data maps
 
+@api_object
 class Asset(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-asset '''
     def __init__(self, url, mimetype, **kwargs):
@@ -93,6 +95,7 @@ class Asset(object):
         return '%s mimetype %s @ %s' % (self.__class__.__name__,
                 self.mimetype, self.url)
 
+@api_object
 class Attribution(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-attribution '''
     def __init__(self, sources, first_acquired):
@@ -143,6 +146,7 @@ class Attribution(object):
         return '%s with %d sources @ %s' % (self.__class__.__name__,
                 len(self.sources), self.first_acquired)
 
+@api_object
 class Brand(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-brand '''
     def __init__(self, uid, name, homepage):
@@ -258,6 +262,7 @@ class BrokerListing(object):
         return '%s %s @ %s' % (self.__class__.__name__,
                 str(self.seller), self.listing_url)
 
+@api_object
 class CADModel(Asset):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-cadmodel '''
     def __init__(self, url, mimetype, **kwargs):
@@ -315,6 +320,7 @@ class CADModel(Asset):
     def __str__(self):
         return super(self.__class__, self).__str__()
 
+@api_object
 class Category(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-category '''
 
@@ -416,6 +422,7 @@ class Category(object):
                 self.__class__.__name__, self.name, self.uid, self.num_parts,
                 len(self.children_uids))
 
+@api_object
 class ComplianceDocument(Asset):
     '''
     https://octopart.com/api/docs/v3/rest-api#object-schemas-compliancedocument
@@ -483,6 +490,7 @@ class ComplianceDocument(Asset):
     def __str__(self):
         return super(self.__class__, self).__str__()
 
+@api_object
 class Datasheet(Asset):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-datasheet '''
     def __init__(self, url, mimetype, **kwargs):
@@ -540,6 +548,7 @@ class Datasheet(Asset):
     def __str__(self):
         return super(self.__class__, self).__str__()
 
+@api_object
 class Description(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-description'''
     def __init__(self, value, attribution):
@@ -590,6 +599,7 @@ class Description(object):
         return '%s %s (%s)' % (self.__class__.__name__,
                 self.value, str(self.attribution))
 
+@api_object
 class ExternaLinks(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#object-schemas-externallinks
@@ -649,6 +659,7 @@ class ExternaLinks(object):
         return '%s %s,%s,%s' % (self.__class__.__name__,
                 self.product_url, self.freesample_url, self.evalkit_url)
 
+@api_object
 class ImageSet(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-imageset '''
     def __init__(self, swatch_image, small_image, medium_image, large_image,
@@ -728,6 +739,7 @@ class ImageSet(object):
         return '%s %s by %s' % (self.__class__.__name__,
                 self.swatch_image, self.credit_string)
 
+@api_object
 class Manufacturer(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#object-schemas-manufacturer
@@ -786,6 +798,7 @@ class Manufacturer(object):
         return '%s %s (%s) @ %s' % (self.__class__.__name__,
                 self.name, self.uid, self.homepage_url)
 
+@api_object
 class Part(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-part '''
     @classmethod
@@ -1040,6 +1053,7 @@ class Part(object):
         return '%s %s %s (%s)' % (self.__class__.__name__,
                 self.manufacturer.name, self.mpn, self.uid)
 
+@api_object
 class PartOffer(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-partoffer '''
     def __init__(self, sku, seller, eligible_region, product_url,
@@ -1192,6 +1206,7 @@ class PartOffer(object):
                 self.__class__.__name__, self.seller.name, self.sku,
                 minval, maxval, unit, self.in_stock_quantity)
 
+@api_object
 class SpecValue(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-specvalue '''
     def __init__(self, value, display_value, **kwargs):
@@ -1273,6 +1288,7 @@ class SpecValue(object):
                 self.display_value, self.min_value, self.max_value,
                 str(self.attribution))
 
+@api_object
 class ReferenceDesign(Asset):
     '''
     https://octopart.com/api/docs/v3/rest-api#object-schemas-referencedesign
@@ -1341,6 +1357,7 @@ class ReferenceDesign(Asset):
     def __str__(self):
         return super(self.__class__, self).__str__()
 
+@api_object
 class Seller(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-seller '''
     def __init__(self, uid, name, homepage_url, display_flag, has_ecommerce):
@@ -1411,6 +1428,7 @@ class Seller(object):
         return '%s %s (%s) @ %s' % (self.__class__.__name__,
                 self.name, self.uid, self.homepage_url)
 
+@api_object
 class Source(object):
     ''' https://octopart.com/api/docs/v3/rest-api#object-schemas-source '''
     def __init__(self, uid, name):
@@ -1461,6 +1479,7 @@ class Source(object):
         return '%s %s (%s)' % (self.__class__.__name__,
                 self.name, self.uid)
 
+@api_object
 class SpecMetadata(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#object-schemas-specmetadata
@@ -1534,6 +1553,7 @@ class SpecMetadata(object):
         return '%s %s %s %s' % (self.__class__.__name__,
                 self.name, self.unit.name, str(self.datatype))
 
+@api_object
 class UnitOfMeasurement(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#object-schemas-unitofmeasurement

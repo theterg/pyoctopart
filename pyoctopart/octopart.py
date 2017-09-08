@@ -28,7 +28,7 @@ import pkg_resources
 
 from pprint import pprint
 
-from pyoctopart.util import Curry, select
+from pyoctopart.util import Curry, select, dict_to_class
 from pyoctopart.objects import Part
 
 #from .exceptions import ArgumentMissingError
@@ -157,7 +157,7 @@ class Octopart(object):
             ver=3)
 
         if json_obj:
-            return json_obj, json_obj['results']
+            return dict_to_class(json_obj)
         else:
             return None
 
@@ -189,7 +189,7 @@ class Octopart(object):
         #  item in json_obj['results']['items']]
 
         if json_obj:
-            return json_obj, json_obj['results']
+            return dict_to_class(json_obj)
         else:
             return None
 
@@ -202,7 +202,7 @@ class Octopart(object):
         json_obj = self._get_data(method, {}, ver=3)
 
         if json_obj:
-            return json_obj, json_obj['results']
+            return dict_to_class(json_obj)
         else:
             return None
 

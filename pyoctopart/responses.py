@@ -22,7 +22,8 @@ limitations under the License.
 # pylint: disable=too-many-locals, superfluous-parens
 
 import copy
-from pyoctopart.util import Curry, select, dict_to_class, list_to_class
+from pyoctopart.util import Curry, select
+from pyoctopart.util import dict_to_class, list_to_class, api_object
 from pyoctopart.objects import Part
 
 #from .exceptions import ArgumentMissingError
@@ -36,6 +37,7 @@ select_hides = Curry(select, 'hide_')
 
 # Response Schemas
 
+@api_object
 class PartsMatchRequest(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-partsmatchrequest
@@ -88,6 +90,7 @@ class PartsMatchRequest(object):
         return '%s with %d queries, exact_only %s' % (self.__class__.__name__,
                 len(self.queries), str(self.exact_only))
 
+@api_object
 class PartsMatchQuery(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-partsmatchquery
@@ -203,6 +206,7 @@ class PartsMatchQuery(object):
             ret += " limit="+str(self.limit)
         return '%s %s' % (self.__class__.__name__, ret)
 
+@api_object
 class PartsMatchResponse(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-partsmatchresponse
@@ -261,6 +265,7 @@ class PartsMatchResponse(object):
         return '%s completed in %d ms, %d results' % (
                 self.__class__.__name__, self.msec, len(self.results))
 
+@api_object
 class PartsMatchResult(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-partsmatchresult
@@ -333,6 +338,7 @@ class PartsMatchResult(object):
         return '%s error %s' % (
                 self.__class__.__name__, self.error)
 
+@api_object
 class SearchRequest(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-searchrequest
@@ -420,6 +426,7 @@ class SearchRequest(object):
         return '%s: %s' % (
                 self.__class__.__name__, str(self.q))
 
+@api_object
 class SearchResponse(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-searchresponse
@@ -512,6 +519,7 @@ class SearchResponse(object):
         return '%s completed in %d ms, %d hits' % (
                 self.__class__.__name__, self.msec, self.hits)
 
+@api_object
 class SearchResult(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-searchresult
@@ -561,6 +569,7 @@ class SearchResult(object):
         return self.item.__str__()
 
 
+@api_object
 class SearchFacetResult(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-searchfacetresult
@@ -621,6 +630,7 @@ class SearchFacetResult(object):
                 self.__class__.__name__, len(self.facets), self.missing,
                 self.spec_drilldown_rank)
 
+@api_object
 class SearchStatsResult(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#response-schemas-searchstatsresult

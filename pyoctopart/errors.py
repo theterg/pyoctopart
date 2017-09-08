@@ -18,10 +18,13 @@ limitations under the License.
 """
 import copy
 from pprint import pprint
+from pyoctopart.util import api_object
+from pyoctopart.exceptions import TypeArgumentError
 
 
 # Error schemas
 
+@api_object
 class ClientErrorResponse(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#error-schemas-clienterrorresponse
@@ -68,6 +71,7 @@ class ClientErrorResponse(object):
     def __str__(self):
         return "%s: %s" % (self.__class__.__name__, self.message)
 
+@api_object
 class ServerErrorResponse(object):
     '''
     https://octopart.com/api/docs/v3/rest-api#error-schemas-servererrorresponse
